@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>My Page</title>
+    <style>
+        body {
+            background-image: url('bg23.jpg');
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            background-size: cover;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh; /* Full height of the viewport */
+            gap: 20px; /* Space between items */
+        }
+    </style>
+
+    <script>
+        // Create an empty dictionary
+        var dictionary = {};
+        var selectedValues = [];
+
+
+        function handleClick() {
+            // Get the lesson input value
+            var lesson = document.getElementById('lesson').value;
+
+            // Get the vocabulary input value
+            var vocabulary = document.getElementById('vocabulary').value;
+
+            // Get the file input value
+            var fileInput = document.getElementById('3D');
+            var file = fileInput.files[0];
+
+            // Check if the file has the same name as the vocabulary
+            if (file.name.split('.')[0] !== vocabulary) {
+                alert('The file name must be the same as the vocabulary.');
+                return;
+            }
+
+            // If the lesson is not in the dictionary, add it with an empty array
+            if (!dictionary[lesson]) {
+                dictionary[lesson] = [];
+            }
+
+            // Add the vocabulary to the lesson's array in the dictionary
+            dictionary[lesson].push(vocabulary);
+
+            // Clear the input fields
+            document.getElementById('lesson').value = '';
+            document.getElementById('vocabulary').value = '';
+
+            // Create a FormData object
+            // var formData = new FormData();
+            // formData.append('file', file);
+
+            // Create an XMLHttpRequest and post the file to your server
+            // var xhr = new XMLHttpRequest();
+            // xhr.open('POST', './', true);
+            // xhr.send(formData);
+
+            // Log the dictionary to the console for testing
+            console.log(dictionary);
+
+            var jsonString = JSON.stringify(dictionary);
+            console.log(jsonString);
+            var dictionary2 = JSON.parse(jsonString);
+            console.log(dictionary2);
+        }
+
+
+
+        window.onload = function() {
+
+            //read lessons
+            fetch('Lessons.json')
+                .then(response => response.json())
+                .then(data => LoadLessons(data))
+                .catch(error => console.log('Error:', error));
+
+// Add an event listener for the change event
+             dropdown.addEventListener('change', function() {
+                // Get the selected value
+                var selectedValue = this.value;
+
+                // Get the values of the selected key from the dictionary
+                selectedValues  = dictionary[selectedValue];
+                console.log(selectedValues);
+            });
+        }
+
+
+        function LoadLessons(data){
+
+            console.log("Lessons loaded")
+            console.log(data)
+
+            var str = JSON.stringify(data);
+            dictionary = JSON.parse(str);
+
+             // Get the dropdown element
+            var dropdown = document.getElementById('dropdown');
+
+            // Get the keys of the dictionary
+            var keys = Object.keys(dictionary);
+
+            console.log(keys)
+
+            // Loop through the keys and create an option for each one
+            for (var i = 0; i < keys.length; i++) {
+                var option = document.createElement('option');
+                option.text = keys[i];
+                option.value = keys[i];
+                dropdown.add(option);
+            }           
+        }
+    </script>
+
+
+
+
+</head>
+<body>
+
+    <div class="container">
+
+        <!-- <br><br><br><br><br> -->
+    <form>
+        <label for="lesson">Lesson:</label><br>
+        <input type="text" id="lesson" name="lesson"><br><br>
+        <label for="vocabulary">Vocabulary:</label><br>
+        <input type="text" id="vocabulary" name="vocabulary"><br><br>
+        <label for="3D">3D File:</label>
+        <input type="file" id="3D" name="3D" accept=".fbx"><br><br>
+        <input type="button" value="Add" onclick="handleClick()">
+
+        <!-- <select id="dropdown">
+            
+        </select> -->
+    </form>
+    </div>
+</body>
+</html>
+
