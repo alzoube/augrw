@@ -1,0 +1,1009 @@
+﻿<!DOCTYPE html>
+<html>
+
+<style>
+    body {
+         background-color: white;
+        /*background-color: rgba(255, 255, 255, 0.05);        
+        background-image: url('bg23.jpg');
+        background-repeat: no-repeat;
+        background-attachment: fixed;
+        background-size: cover; */
+
+        
+    }
+
+
+    canvas {
+        border: 1px solid rgba(0, 0, 0, 0);
+        font-family: "Helvetica Neue", "Arial", "Lucida Grande", "Lucida Sans Unicode", "Microsoft YaHei", sans-serif;
+        font-size: 5px;
+        line-height: 1.5;
+        color: #474747;
+        background: transparent; 
+    }
+    ul {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    li {
+      display: inline-block;
+      margin: 10px;
+    }
+
+    
+    .first {
+      opacity: 0.1;
+      width: 20px;
+    }
+
+    .second {
+      opacity: 1;
+      width: 20px;
+    }
+
+
+
+    #myCanvas {
+           
+        background-image: url('bg22.png');        
+        background-repeat: no-repeat;
+        background-attachment: fixed;
+        background-size: cover; 
+    }
+
+</style>
+
+
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width">
+
+    <title>ReadWriteGame</title>
+
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "../build/three.module.js",
+                "three/addons/": "../jsm/"
+            }
+        }
+      </script>
+
+
+    <!-- <script src="events.js"></script>
+    <script src="Drawing.js"></script> -->
+
+    <!-- <SCRIPT SRC="../js/diff_match_patch.js"></SCRIPT> -->
+    <script src="../dist/tesseract.min.js"></script> 
+
+
+</head>
+<body>
+
+
+    <div id="root">
+
+        <div id="sep"></div>
+
+        <canvas id="canvas" width="480" height="480" style="border: 3px solid skyblue;display:none;"></canvas> 
+        <canvas id="canvasC" width="640" height="480" style="border: 3px solid limegreen;display:none;"></canvas>
+    </div>
+
+  
+
+
+    <div id="toolbar">
+        <label for="clr">
+            Color
+        </label>      
+            <input type="color" id="clr"   value="#f6b73c">          
+        <label>
+            Size:
+        </label>      
+        <input type="range" id="textsize" min="5" max="20" value="10" step="5">
+        <input type="button" id="clearButton" value="Clear"> 
+        <input type="button" id="start_button"  value="Start Game">
+        <input type="button" id="spell_button"  value="Check Spelling">
+
+
+        <!-- <button><img id="start_img" src="mic.gif" alt="Start"></button> -->
+        
+    </div>
+  
+    <ul id="pgallery"> 
+        <span>Pronunciation</span> 
+        <li><img src="star.png" alt="Star 1" class="first"></li>
+        <li><img src="star.png" alt="Star 2" class="first"></li>
+        <li><img src="star.png" alt="Star 3" class="first"></li>
+        <li><img src="star.png" alt="Star 4" class="first"></li>
+        <li><img src="star.png" alt="Star 5" class="first"></li>
+   
+
+        <span>Spelling</span>
+     
+        <li><img src="star.png" alt="Star 1" class="first"></li>
+        <li><img src="star.png" alt="Star 2" class="first"></li>
+        <li><img src="star.png" alt="Star 3" class="first"></li>
+        <li><img src="star.png" alt="Star 4" class="first"></li>
+        <li><img src="star.png" alt="Star 5" class="first"></li>
+      </ul>
+
+
+
+    <canvas id="myCanvas" width="600" height="350"   style="position:absolute; ">
+    </canvas>
+
+
+
+
+        <div id="messages"></div> 
+
+
+        <div>
+            <p class="output"><em></em></p>
+        </div>
+
+</body>
+
+    <script type="module">
+
+            import * as THREE from 'three';
+            import { OrbitControls } from 'three/addons/OrbitControls.js'; 
+            import Stats from 'three/addons/libs/stats.module.js';
+            import { FBXLoader } from 'three/addons/loaders/FBXLoader.js';
+
+            const clock = new THREE.Clock();
+            //init();
+
+
+  
+                            //   Init 
+
+
+    let animations,camera,scene,mixer,actions = [], Lobjects=[], models3d =[],  Lanims =[], action;
+
+    var canvas, context;
+    var texture;
+    var  renderer, controls;
+
+    var width = window.innerWidth;
+    var height = window.innerHeight ;
+    var markers, detector;
+ 
+    var warpImage, homographyImageR, homographyImageG, homographyImageB;
+
+    var cnvs;
+    var cxt;
+    var offset =10;
+    let rotation = 0;
+    var img;
+
+    let vocab = ["swim", "run", "clap", "think",  "angry", "talk", "victory", "pray", "look", "fly", "crawl", "climb", "throw"];
+    var doc= document.querySelector('#root');
+    var synth = window.speechSynthesis;
+
+    var voices = [];
+    var dictionary = {};
+    var selectedValues = [];
+    var lesson =[];
+    var successSound, failuerSound;
+    var talking =true;
+
+    var word;
+
+
+
+
+
+//************************Drawing  *****************************//
+
+
+
+    canvas = document.getElementById("myCanvas");
+    context = canvas.getContext("2d");
+
+    document.addEventListener("DOMContentLoaded", startup); 
+    var ongoingTouches = [];
+
+
+
+    function drawWord(canvas, word){
+        console.log("draw word");
+        context.clearRect(0, 0, canvas.width, canvas.height);
+        context.drawImage(canvas, 0, 0, canvas.width, canvas.height);
+
+        //Draw word
+        context.beginPath();
+        context.font = "160pt Calibri";
+        context.fillStyle = "white";
+        context.strokeStyle = "orange";
+        context.textAlign = "center";
+        context.textBaseline = "middle";
+        context.strokeText(word, canvas.width / 2, 120);
+    }
+
+    
+    document.getElementById("clearButton").addEventListener("click", function(evt){
+        context.clearRect(0, 0, canvas.width, canvas.height);
+        ongoingTouches = [];
+        
+       }, false);
+
+
+
+    function startup() {
+    
+        canvas.addEventListener("touchstart", handleStart, false);
+        canvas.addEventListener("touchend", handleEnd, false);
+        canvas.addEventListener("touchcancel", handleCancel, false);
+        canvas.addEventListener("touchmove", handleMove, false);
+    }
+
+
+
+        function handleStart(evt) {
+
+      evt.preventDefault();
+
+      var touches = evt.changedTouches;
+            
+      for (var i = 0; i < touches.length; i++) {
+       // console.log("touchstart:" + i + "...");
+        ongoingTouches.push(copyTouch(touches[i]));
+
+        size = document.getElementById("textsize").value;
+        context.strokeStyle = document.getElementById("clr").value;
+        context.lineWidth = size;
+        context.lineJoin = "round";
+        context.lineCap = "round";
+      }
+    }
+
+
+
+ function handleMove(evt) {
+
+      evt.preventDefault();
+
+      var touches = evt.changedTouches;
+
+      for (var i = 0; i < touches.length; i++) {
+      
+          var idx = ongoingTouchIndexById(touches[i].identifier);
+
+          if (idx >= 0) {
+              //console.log("continuing touch "+idx);
+              context.beginPath();
+              //console.log("ctx.moveTo(" + ongoingTouches[idx].pageX + ", " + ongoingTouches[idx].pageY + ");");
+              context.moveTo(ongoingTouches[idx].pageX, ongoingTouches[idx].pageY);
+              //console.log("ctx.lineTo(" + touches[i].pageX + ", " + touches[i].pageY + ");");
+              context.lineTo(touches[i].pageX, touches[i].pageY);
+
+              context.stroke();
+
+              ongoingTouches.splice(idx, 1, copyTouch(touches[i]));  // swap in the new touch record
+             // console.log(".");
+          } else {
+             console.log("can't figure out which touch to continue");
+          }
+      }
+    }
+
+
+
+    function handleEnd(evt) {
+
+        evt.preventDefault();
+        ongoingTouches = [];
+
+    }
+
+
+
+    function handleCancel(evt) {
+
+        evt.preventDefault();
+        //console.log("touchcancel.");
+        var touches = evt.changedTouches;
+        
+        for (var i = 0; i < touches.length; i++) {
+        var idx = ongoingTouchIndexById(touches[i].identifier);
+        ongoingTouches.splice(idx, 1);  // remove it; we're done
+        }
+    }
+
+
+
+    function copyTouch({ identifier, pageX, pageY }) {
+        return { identifier, pageX, pageY };
+    } 
+
+
+    function ongoingTouchIndexById(idToFind) {
+
+        for (var i = 0; i < ongoingTouches.length; i++) {
+        var id = ongoingTouches[i].identifier;
+        
+        if (id == idToFind) {
+            return i;
+        }
+        }
+        return -1;    
+    }
+
+
+//********************              ******************************//
+
+
+
+    const messages = document.getElementById('messages');
+    let timerId = null;
+    var c;
+
+ 
+    const addMessage = (m, bold) => {
+        let msg = `<p>${m}</p>`;
+        if (bold) {
+        msg = `<p class="bold">${m}</p>`;
+        }
+        messages.innerHTML = msg;
+        messages.scrollTop = messages.scrollHeight;
+    }
+
+
+
+
+
+
+
+   
+    var answerListener = function(event) {
+        
+            recognition.start();
+            console.log("speech recognition statred");
+    };
+
+    //document.dispatchEvent(answerEvent);   
+    document.addEventListener("answerEvent", answerListener);
+    //var parameterValue = "Play Event Dispached";
+    var answerEvent = new CustomEvent("answerEvent");
+
+
+
+
+
+
+
+
+
+//******************      Start New game Here      ******************************//
+
+  var startGameListener = function(event) {
+
+        let idx = generateRandomNumber();
+
+        console.log("idx: "+ idx);
+              
+            word = lesson[idx];
+            console.log(word);
+            if(Lanims.indexOf(word) != -1) {//anim
+
+                playAnimationByName(word, 3);
+            }
+            else{//object
+                let model;
+                models3d.forEach(function(mdl) {
+                    mdl.visible=false;
+                    if(mdl.name === word){
+                        model=mdl;
+                    }
+                });
+                
+                model.visible=true;
+            }
+    };
+    document.addEventListener("startGameEvent", startGameListener);
+    var startGameEvent = new CustomEvent("startGameEvent" );
+    var gamebutton = document.getElementById('start_button');
+
+    gamebutton.onclick =function (){
+
+    SayIt("can you guess the word ?");
+    document.dispatchEvent(startGameEvent);  
+    //console.log("start game dispached");
+        //recognition.stop();
+        //setTimeout(recognition.start(), 1000); // Answer now (STT)
+    }
+           
+
+    var spellbutton = document.getElementById('spell_button');
+
+    spellbutton.onclick =function (){
+       doCanvasOCR();
+    }
+
+
+    // var endClipListener = function(event) {
+    //     console.log("Clip ended");
+    // };
+    // document.addEventListener("endClipEvent", endClipListener);
+    // var parameterValue = "Play Event Dispached";
+    // var endClipEvent = new CustomEvent("endClipEvent", { detail: parameterValue });
+
+
+
+
+
+                            //OCR
+
+    var worker;
+
+    (async () => {
+    worker = await Tesseract.createWorker("eng", 1, {
+            workerPath: "../dist/worker.min.js"
+        });
+
+            init();
+
+    })();
+    
+
+
+
+                            //Speech synthesis
+
+
+    function populateVoiceList() {
+        voices = synth.getVoices();
+    }
+
+    populateVoiceList();
+    if (speechSynthesis.onvoiceschanged !== undefined) {
+    speechSynthesis.onvoiceschanged = populateVoiceList;
+    }
+
+    function speek(message){
+        if (synth.speaking) {
+            console.error('speechSynthesis.speaking');
+            return;
+        }
+
+        if (message !== '') {
+            var utterThis = new SpeechSynthesisUtterance(message);
+            utterThis.onend = function (event) {
+                console.log('SpeechSynthesisUtterance.onend' );
+
+            //console.log(event)
+            }
+            utterThis.onerror = function (event) {
+                console.error('SpeechSynthesisUtterance.onerror');
+            }
+        
+            // console.log(voices.length);
+            utterThis.voice = voices[1];
+            utterThis.pitch = '0.5';
+            utterThis.rate = '1';
+            talking =true;
+            console.log("computer talking");
+            synth.speak(utterThis);
+        
+
+        }
+    }
+
+    function SayIt(message){
+        if (synth.speaking) {
+            console.error('speechSynthesis.speaking');
+            return;
+        }
+
+        if (message !== '') {
+            var utterThis = new SpeechSynthesisUtterance(message);
+            utterThis.onend = function (event) {
+ 
+                  console.log('Speeking  ended');
+
+                  document.dispatchEvent(answerEvent);
+            }
+            utterThis.onerror = function (event) {
+               console.error('SpeechSynthesisUtterance.onerror');           
+            }
+        
+            // console.log(voices.length);
+            utterThis.voice = voices[1];///////????
+            utterThis.pitch = '0.5';
+            utterThis.rate = '1';
+            talking =true;
+            console.log("computer talking");
+            synth.speak(utterThis);
+        //console.log("Uttered!");
+    
+        }
+    }
+
+    //////////////////////////////////////////////////////////////////////////////////////  
+
+
+    function VerifyText(text){
+        return vocab.includes(text);
+    }
+
+
+
+                             //   <!-- Speech   recognition  -->
+
+
+    var SpeechRecognition = SpeechRecognition || webkitSpeechRecognition
+    var SpeechGrammarList = SpeechGrammarList || webkitSpeechGrammarList
+    var SpeechRecognitionEvent = SpeechRecognitionEvent || webkitSpeechRecognitionEvent
+
+    var anims = ["swim", "run","Laugh", "Clap", "think", "salute", "angry", "talk", "victory", "pray", "look", "fly", "crawl", "climb", "throw"];
+    var grammar = '#JSGF V1.0; grammar anims; public <clip> = ' + anims.join(' | ') + ' ;'
+
+    var recognition = new SpeechRecognition();
+    var speechRecognitionList = new SpeechGrammarList();
+
+        speechRecognitionList.addFromString(grammar, 1);
+        recognition.grammars = speechRecognitionList;
+        recognition.continuous = true;
+        recognition.lang = 'en-US';  
+
+        recognition.onspeechend = function() {//no sound
+           // recognition.stop();
+           console.log('Listening Ends! ');
+
+        }
+
+        recognition.onnomatch = function(event) {
+            console.log("I didn't recognise that word.") ;
+           // recognition.stop();
+        }
+
+        recognition.onerror = function(event) {
+            console.log('Error occurred in recognition: ' + event.error);
+           // recognition.stop();
+        }
+   
+        
+
+
+
+
+
+//******************   STT Result   (Answer) ***************************//
+
+        recognition.onresult = function(event) {
+        
+        var clip = event.results[0][0].transcript;
+        clip = clip.replace(/[.,?]/g, "");
+        console.log("speeck result: "+clip);
+        console.log('Confidence: ' + event.results[0][0].confidence);
+        recognition.stop();
+        
+        if(clip.toLowerCase() === word){
+
+            //playTalkAnimation();
+            speek("Correct. that is great.  Now try to write it !  ");
+            document.dispatchEvent(correctAnswer1);
+            models3d.forEach(function(mdl) {
+                    mdl.visible=false;
+            });
+
+        }  else{
+
+            playTalkAnimation();
+            SayIt("please say  it again");
+
+        }  
+    }
+
+
+
+
+//******************    (Writing result) ***************************//
+
+    const doCanvasOCR = async () => {//from the canvas
+
+        console.log("doCanvasOCR");
+
+        const { data: { text } } = await worker.recognize(canvas);
+    
+        addMessage(text);
+
+        let text2 = text.substring(0,text.length-1);
+        console.log("OCR result: "+text2);
+        if(lesson.includes(text2.toLowerCase())){
+    
+           // clearInterval(timerOCR);
+            playTalkAnimation();
+            speek("Correct. that is great");
+            //clearInterval(timerOCR);
+            document.dispatchEvent(correctAnswer2);
+
+
+        } else{
+
+            playTalkAnimation();
+            speek("please rewrite again");
+            failuerSound.play();
+
+        }              
+    }
+
+                          //      <!-- Animation-->
+
+
+
+
+    function init() {
+    
+
+        animations = ["idle", "talk", "wave", "victory"];
+        lesson = ["clock", "chair", "hat", "orange", "table", "clap", "swim"];
+
+        for(let i=0; i<lesson.length;i++) numbers[i]=i;
+
+        const container = document.createElement( 'div' );
+        container.style.border ="3px solid green";
+        container.style.width="200px";
+        container.style.height="350px";
+        container.style.float="right";
+        container.style.marginRight="100px"
+
+
+        document.body.appendChild( container );
+
+       // camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 2000 );
+       camera = new THREE.PerspectiveCamera( 45, 200 / 350, 1, 2000 );
+        camera.position.set( 0, 100, 400 );
+
+        scene = new THREE.Scene();
+
+        //Light
+        scene.background = new THREE.Color( 0xffffff );
+
+        let hlight = new THREE.HemisphereLight( 0xffffff, 0x444444,1 );
+        hlight.position.set( 0, 200, 0 );
+        scene.add( hlight );
+
+        let dlight = new THREE.DirectionalLight( 0xffffff, 5 );
+        dlight.position.set( 0, 200, 100 );
+
+        scene.add( dlight );
+        const targetObject = new THREE.Object3D();
+        targetObject.position.set(150,50,80);
+        scene.add(targetObject);
+        dlight.target = targetObject;
+
+        const alight = new THREE.AmbientLight( 0x909090 ); // soft white light
+        scene.add( alight );
+
+        // ground
+        const mesh = new THREE.Mesh( new THREE.PlaneGeometry( 100, 100 ), new THREE.MeshPhongMaterial( { color: 0x99ff99, depthWrite: false } ) );
+        mesh.rotation.x = - Math.PI / 2;
+        mesh.receiveShadow = true;
+        //scene.add( mesh );
+        mesh.position.set(160,80,50);
+
+        const grid = new THREE.GridHelper( 100, 20, 0x000000, 0x000000 );
+        grid.material.opacity = 0.2;
+        grid.material.transparent = true;
+        //scene.add( grid );
+        grid.position.set(160,80,50);
+
+
+        renderer = new THREE.WebGLRenderer( { antialias: true } );
+        renderer.setPixelRatio( window.devicePixelRatio );
+        //renderer.setSize( window.innerWidth-120, window.innerHeight-120 );
+        renderer.setSize( 200, 350 );
+        renderer.shadowMap.enabled = true;
+        //renderer.autoClear = false;
+        container.appendChild( renderer.domElement );
+
+        controls = new OrbitControls( camera, renderer.domElement );
+        controls.target.set( 0, 150, 0 );
+        controls.update();
+
+        window.addEventListener( 'resize', function(){ resize();}, false );
+
+
+
+                // models
+
+    const loader = new FBXLoader();
+
+
+    loader.load( '../idle.fbx', function ( object ) {
+
+        if(mixer === undefined)  mixer = new THREE.AnimationMixer( object );
+        scene.add( object );
+        object.position.set(0,50,50);
+        object.rotation.y=-0.2;
+
+        loadNextAnim(loader);
+        
+    } );
+
+
+  //*******************    Audio   *********************//
+
+       const listener = new THREE.AudioListener();
+        camera.add(listener);
+
+        // Create an audio source and load a sound
+        successSound = new THREE.Audio(listener);
+        const aloader = new THREE.AudioLoader();
+        aloader.load('sounds/success.mp3', function(buffer) {
+        successSound.setBuffer(buffer);
+        successSound.setLoop(false);
+        successSound.setVolume(1);
+        });
+
+        failuerSound = new THREE.Audio(listener);
+        aloader.load('sounds/failure.mp3', function(buffer2) {
+        failuerSound.setBuffer(buffer2);
+        failuerSound.setLoop(false);
+        failuerSound.setVolume(1);
+        });
+
+    }//init
+
+    let odx=0;
+    function loadLesson(loader){
+            const obj= lesson[odx];
+            odx++;
+            loader.load(`../${obj}.fbx`, function ( object ) {
+
+            if(mixer === undefined) mixer = new THREE.AnimationMixer( object );
+        // Check if the object has any animations
+        if (object.animations.length > 0) {
+            //console.log('The object has ' + object.animations.length + ' animations');
+            action = mixer.clipAction(object.animations[0]);
+            action._clip.name = obj;
+            actions.push(action);
+            Lanims.push(obj);//names
+            //console.log(obj);
+
+        } else {
+
+                scene.add( object );
+                object.position.set(-10,130,220);
+                object.name=obj;
+                models3d.push(object);
+                object.visible = false;
+                Lobjects.push(obj);//names
+                //console.log(object);
+                object.rotation.y= 0.5;
+            //console.log('The object has no animations');
+        }
+
+        } );
+
+        if(odx<lesson.length)  {
+            loadLesson(loader);
+        }   
+        else{
+            
+            
+            //********************    Start here    ************************//
+
+
+            //console.log(actions);
+            //console.log(models3d);
+            animate();     
+ 
+            playAnimation("wave");
+            speek('Ready to start the game ?  Lets go.');  
+            
+            mixer.addEventListener('finished', NextAnim) ;
+        }
+    }
+
+
+
+    let animIdx=0;
+    function  loadNextAnim(loader){
+        const anim = animations[animIdx];
+        animIdx++;
+        loader.load( `../${anim}.fbx`, function ( object ) {
+
+            action = mixer.clipAction(object.animations[0]);
+            action._clip.name = animations[animIdx-1];
+            actions.push(action);
+            //console.log('clips No: ' +actions.length);
+           // console.log(action);
+
+            if(animIdx<animations.length) {
+                loadNextAnim(loader);
+            }
+            else{
+                loadLesson(loader);
+            }
+        });
+    }
+
+
+
+
+
+    function NextAnim(e){
+            
+        playIdleAnimation();
+
+        // if(e.action._clip.name==="Wave"){
+        //     playIdleAnimation();
+        // } else{
+        //   //  mixer.removeEventListener( 'finished', restoreState );
+        // }            
+    }
+
+
+
+    
+
+    var clipName;
+    function  playAnimationByName(clip, n){
+        mixer.stopAllAction();
+       
+        let action ;
+     
+        actions.forEach(function(acxn) {
+            if(acxn._clip.name === clip){
+               action= acxn;
+            }
+        
+        });
+        console.log("clip name:  "+action._clip.name); 
+        action.setLoop(THREE.LoopRepeat , n);
+        action.weight = 1;
+        action.fadeIn(0);       
+        action.play();     
+    }
+
+    
+   // var clipName;
+    function  playAnimation(clip){
+        mixer.stopAllAction();
+
+        let idx =animations.indexOf(clip);
+        const action = actions[idx];
+        clipName=action._clip.name;
+        console.log("clip name:  "+clipName);
+   
+        action.setLoop(THREE.LoopRepeat , 4);
+        action.weight = 1;
+        action.fadeIn(0);       
+        action.play();
+       
+    }
+
+    function  playIdleAnimation(){
+        let idx =animations.indexOf("idle");
+        mixer.stopAllAction();
+        const action = actions[idx];
+        action.weight = 1;
+        action.fadeIn(0.4);
+        action.clampWhenFinished = true;        
+        action.play();    
+    }
+
+    function  playTalkAnimation(){
+       
+        let idx =animations.indexOf("talk");
+
+        mixer.stopAllAction();
+        const action = actions[idx];
+       // console.log(action);
+        action.setLoop(THREE.LoopRepeat , 1);
+        action.weight = 1;
+        action.fadeIn(0.5);
+        action.play();        
+    }
+    function  playClipByIndex(index, n){
+
+        mixer.stopAllAction();
+        const action = actions[index];
+        clipName=action._clip.name;
+        console.log("clip name:  "+clipName);
+        action.setLoop(THREE.LoopRepeat , n);
+        action.weight = 1;
+        action.fadeIn(0.5);
+        action.play();
+
+    }
+
+    function  stopAnimation(){
+        mixer.stopAllAction();    
+    }  
+    
+    // function  resize() {
+    //     camera.aspect = window.innerWidth / window.innerHeight;
+    //     camera.updateProjectionMatrix();
+    //     renderer.setSize( window.innerWidth, window.innerHeight );
+    // }
+
+    function  resize() {
+        camera.aspect = 200 / 350;
+        camera.updateProjectionMatrix();
+        renderer.setSize( 200, 350 );
+    }
+
+    function animate() {
+        requestAnimationFrame( function(){animate(); } );
+        const delta = clock.getDelta();
+        if ( mixer ) mixer.update( delta );
+        renderer.render( scene, camera );
+}
+
+
+
+//************************  Stars   ***************************//
+
+
+    //var pgallery = document.getElementById("pgallery");
+    var image = document.getElementsByTagName("img");
+    var count1 = 0;
+    var count2 = 5;
+
+    document.addEventListener("CorrectAnswer1", function(e) {
+
+      if (count1 < image.length/2) {
+        image[count1].classList.remove("first");
+        image[count1].classList.add("second");
+        count1++;
+
+        successSound.play();  
+        playAnimationByName("victory", 1);
+        
+      }
+    });
+
+    var correctAnswer1 = new CustomEvent("CorrectAnswer1");
+
+    document.addEventListener("CorrectAnswer2", function(e) {
+
+            if (count2 < image.length) {
+                image[count2].classList.remove("first");
+                image[count2].classList.add("second");
+                count2++;
+
+                successSound.play();  
+                playAnimationByName("victory", 1);
+            }
+            });
+
+var correctAnswer2 = new CustomEvent("CorrectAnswer2");
+ 
+
+//********************    Random ******************//
+
+            var numbers = [];
+          
+            function generateRandomNumber() {
+            
+                if (numbers.length > 0) {
+                    
+                    var index = Math.floor(Math.random() * numbers.length);
+            
+                    var number = numbers.splice(index, 1)[0];
+                
+                    return number;
+                } else {
+                    for(let i=0; i<lesson.length;i++) numbers[i]=i;
+                    return 0;
+                }
+            }
+
+
+
+
+
+
+</script>
+
+
+</html>
