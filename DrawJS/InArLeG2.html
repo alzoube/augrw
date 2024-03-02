@@ -45,14 +45,14 @@
     }
 
 
-
+/*
     #myCanvas {
            
         background-image: url('bg22.png');        
         background-repeat: no-repeat;
         background-attachment: fixed;
         background-size: cover; 
-    }
+    }*/
 
 </style>
 
@@ -134,7 +134,7 @@
 
 
 
-    <canvas id="myCanvas" width="600" height="350"   style="position:absolute; ">
+    <canvas id="myCanvas" width="1000" height="550"   style="position:absolute; ">
     </canvas>
 
 
@@ -648,12 +648,12 @@
         for(let i=0; i<lesson.length;i++) numbers[i]=i;
 
         const container = document.createElement( 'div' );
-        container.style.border ="3px solid green";
+      /*  container.style.border ="3px solid green";
         container.style.width="200px";
         container.style.height="350px";
         container.style.float="right";
         container.style.marginRight="100px"
-
+*/
 
         document.body.appendChild( container );
 
@@ -698,10 +698,10 @@
 
         renderer = new THREE.WebGLRenderer( { antialias: true } );
         renderer.setPixelRatio( window.devicePixelRatio );
-        //renderer.setSize( window.innerWidth-120, window.innerHeight-120 );
-        renderer.setSize( 200, 350 );
+        renderer.setSize( window.innerWidth-120, window.innerHeight-120 );
+        //renderer.setSize( 200, 350 );
         renderer.shadowMap.enabled = true;
-        //renderer.autoClear = false;
+        renderer.autoClear = false;
         container.appendChild( renderer.domElement );
 
         controls = new OrbitControls( camera, renderer.domElement );
@@ -721,7 +721,7 @@
 
         if(mixer === undefined)  mixer = new THREE.AnimationMixer( object );
         scene.add( object );
-        object.position.set(0,50,50);
+        object.position.set(150,50,50);
         object.rotation.y=-0.2;
 
         loadNextAnim(loader);
