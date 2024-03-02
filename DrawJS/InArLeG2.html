@@ -657,8 +657,8 @@
 
         document.body.appendChild( container );
 
-       // camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 2000 );
-       camera = new THREE.PerspectiveCamera( 45, 200 / 350, 1, 2000 );
+        camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 2000 );
+       //camera = new THREE.PerspectiveCamera( 45, 200 / 350, 1, 2000 );
         camera.position.set( 0, 100, 400 );
 
         scene = new THREE.Scene();
@@ -923,7 +923,7 @@
  function  resize() {
          camera.aspect = window.innerWidth / window.innerHeight;
          camera.updateProjectionMatrix();
-         renderer.setSize( window.innerWidth, window.innerHeight );
+         renderer.setSize( window.innerWidth-120, window.innerHeight-120 );
      }
 
  //   function  resize() {
