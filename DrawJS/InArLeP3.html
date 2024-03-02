@@ -117,7 +117,7 @@
 
 
 
-    function drawWord(canvas, word){
+    function drawWord(word){
         console.log("draw word");
         context.clearRect(0, 0, canvas.width, canvas.height);
         context.drawImage(canvas, 0, 0, canvas.width, canvas.height);
@@ -335,7 +335,7 @@
     let rotation = 0;
     var img;
 
-    let vocab = ["one", "swim", "run","Laugh", "Clap", "think", "salute", "angry", "talk", "victory", "pray", "look", "fly", "crawl", "climb", "throw"];
+    let vocab = ["one", "swim", "run","laugh", "clap", "think", "salute", "angry", "talk", "victory", "pray", "look", "fly", "crawl", "climb", "throw"];
     var doc= document.querySelector('#root');
     var synth = window.speechSynthesis;
 
@@ -413,16 +413,24 @@
         button.onclick = function() {
             if (button.value === 'Play Video') {
                 
-                if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-                    navigator.mediaDevices.getUserMedia({video: true, facingMode: 'environment' }).then(function(stream) {
+                navigator.mediaDevices.getUserMedia({
+                    video: {
+                        facingMode: 'environment'
+                    }
+                })
+                .then(function(stream) {
+                    
                     video.srcObject = stream;
                     video.play();
+                    })
+                    .catch(function(err) {
+                        console.log('An error occurred: ' + err);
                 });
 
              
 
                   //  timerId = setInterval(doOCR, 2000);
-                }
+                
                 button.value = 'Stop Video';
 
                 //scene.background = new THREE.Color( 0x000000);
@@ -699,8 +707,8 @@
         texture.format =THREE.RGBAFormat;
 
         //animations = ["Idle", "Talk", "Wave","Swim", "Laugh", "Clap", "Think", "Salute",  "Victory"];
-        animations = ["Idle", "Talk", "Wave", "Victory"];
-        lesson = ["Clock", "Chair", "Hat", "Orange", "Table", "Clap", "Swim"];
+        animations = ["idle", "talk", "wave", "victory"];
+        lesson = ["clock", "chair", "hat", "orange", "table", "clap", "swim"];
 
 
 
@@ -888,16 +896,8 @@
 
 
     function NextAnim(e){       
-
-        if(e.action._clip.name==="Wave" || e.action._clip.name==="Victory"){
-            playIdleAnimation();
-        } else if(e.action._clip.name==="Clap"){
-            playVictoryAnimation();
-        }
-        else{
-            playVictoryAnimation();
-          //  mixer.removeEventListener( 'finished', NextAnim );
-        }            
+         playVictoryAnimation();
+           
     }
 
 
