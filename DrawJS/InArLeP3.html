@@ -59,7 +59,7 @@
       </script>
 
 
-  <script src="/dist/tesseract.min.js"></script>
+  <script src="../dist/tesseract.min.js"></script>
   <script type="text/javascript" src="../js/cv.js"></script>
   <script type="text/javascript" src="../js/aruco.js"></script>
   <!-- <script src="events.js"></script> -->
@@ -474,7 +474,7 @@
 
     (async () => {
         worker = await Tesseract.createWorker("eng", 1, {
-            workerPath: "/dist/worker.min.js"
+            workerPath: "../dist/worker.min.js"
          });
 
         c = document.createElement('canvas');
