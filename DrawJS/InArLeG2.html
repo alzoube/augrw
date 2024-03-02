@@ -920,17 +920,17 @@
         mixer.stopAllAction();    
     }  
     
-    // function  resize() {
-    //     camera.aspect = window.innerWidth / window.innerHeight;
-    //     camera.updateProjectionMatrix();
-    //     renderer.setSize( window.innerWidth, window.innerHeight );
-    // }
+ function  resize() {
+         camera.aspect = window.innerWidth / window.innerHeight;
+         camera.updateProjectionMatrix();
+         renderer.setSize( window.innerWidth, window.innerHeight );
+     }
 
-    function  resize() {
-        camera.aspect = 200 / 350;
-        camera.updateProjectionMatrix();
-        renderer.setSize( 200, 350 );
-    }
+ //   function  resize() {
+    //    camera.aspect = 200 / 350;
+   //     camera.updateProjectionMatrix();
+   //     renderer.setSize( 200, 350 );
+  //  }
 
     function animate() {
         requestAnimationFrame( function(){animate(); } );
