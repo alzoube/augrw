@@ -98,7 +98,7 @@
         <input type="button" id="scan_button"  value="Start AR">
 
     </div>
-    <canvas id="myCanvas" width="600" height="450" style="position:absolute;">
+    <canvas id="myCanvas" width="1000" height="650" style="position:absolute;">
     </canvas>
 
 
@@ -151,7 +151,7 @@
 
 
 
-        function handleStart(evt) {
+  function handleStart(evt) {
 
       evt.preventDefault();
 
@@ -363,13 +363,29 @@
     // Create a webcam capture
     var video = document.getElementById('webcam');
     console.log("Start Video");
+      
+    navigator.mediaDevices.getUserMedia({
+            video: {
+                facingMode: 'environment'
+            }
+        })
+        .then(function(stream) {
+           
+            video.srcObject = stream;
+        })
+        .catch(function(err) {
+            console.log('An error occurred: ' + err);
+    });
 
+/*      
     if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
         navigator.mediaDevices.getUserMedia({video: true, facingMode: 'environment' }).then(function(stream) { 
         video.srcObject = stream;
         //video.play();
         });
     }
+
+    */
     const addMessage = (m, bold) => {
         let msg = `<p>${m}</p>`;
         if (bold) {
