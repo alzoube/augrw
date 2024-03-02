@@ -149,60 +149,9 @@
 
 </body>
 
-    <script type="module">
 
-            import * as THREE from 'three';
-            import { OrbitControls } from 'three/addons/OrbitControls.js'; 
-            import Stats from 'three/addons/libs/stats.module.js';
-            import { FBXLoader } from 'three/addons/loaders/FBXLoader.js';
-
-            const clock = new THREE.Clock();
-            //init();
-
-
-  
-                            //   Init 
-
-
-    let animations,camera,scene,mixer,actions = [], Lobjects=[], models3d =[],  Lanims =[], action;
-
-    var canvas, context;
-    var texture;
-    var  renderer, controls;
-
-    var width = window.innerWidth;
-    var height = window.innerHeight ;
-    var markers, detector;
- 
-    var warpImage, homographyImageR, homographyImageG, homographyImageB;
-
-    var cnvs;
-    var cxt;
-    var offset =10;
-    let rotation = 0;
-    var img;
-
-    let vocab = ["swim", "run", "clap", "think",  "angry", "talk", "victory", "pray", "look", "fly", "crawl", "climb", "throw"];
-    var doc= document.querySelector('#root');
-    var synth = window.speechSynthesis;
-
-    var voices = [];
-    var dictionary = {};
-    var selectedValues = [];
-    var lesson =[];
-    var successSound, failuerSound;
-    var talking =true;
-
-    var word;
-
-
-
-
-
-//************************Drawing  *****************************//
-
-
-
+    
+<script>
     canvas = document.getElementById("myCanvas");
     context = canvas.getContext("2d");
 
@@ -211,7 +160,7 @@
 
 
 
-    function drawWord(canvas, word){
+    function drawWord(word){
         console.log("draw word");
         context.clearRect(0, 0, canvas.width, canvas.height);
         context.drawImage(canvas, 0, 0, canvas.width, canvas.height);
@@ -245,7 +194,7 @@
 
 
 
-        function handleStart(evt) {
+    function handleStart(evt) {
 
       evt.preventDefault();
 
@@ -336,6 +285,62 @@
     }
 
 
+
+
+
+       
+</script>
+    <script type="module">
+
+            import * as THREE from 'three';
+            import { OrbitControls } from 'three/addons/OrbitControls.js'; 
+            import Stats from 'three/addons/libs/stats.module.js';
+            import { FBXLoader } from 'three/addons/loaders/FBXLoader.js';
+
+            const clock = new THREE.Clock();
+            //init();
+
+
+  
+                            //   Init 
+
+
+    let animations,camera,scene,mixer,actions = [], Lobjects=[], models3d =[],  Lanims =[], action;
+
+    var canvas, context;
+    var texture;
+    var  renderer, controls;
+
+    var width = window.innerWidth;
+    var height = window.innerHeight ;
+    var markers, detector;
+ 
+    var warpImage, homographyImageR, homographyImageG, homographyImageB;
+
+    var cnvs;
+    var cxt;
+    var offset =10;
+    let rotation = 0;
+    var img;
+
+    let vocab = ["swim", "run", "clap", "think",  "angry", "talk", "victory", "pray", "look", "fly", "crawl", "climb", "throw"];
+    var doc= document.querySelector('#root');
+    var synth = window.speechSynthesis;
+
+    var voices = [];
+    var dictionary = {};
+    var selectedValues = [];
+    var lesson =[];
+    var successSound, failuerSound;
+    var talking =true;
+
+    var word;
+
+
+
+
+
+
 //********************              ******************************//
 
 
@@ -353,9 +358,6 @@
         messages.innerHTML = msg;
         messages.scrollTop = messages.scrollHeight;
     }
-
-
-
 
 
 
