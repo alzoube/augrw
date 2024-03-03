@@ -181,6 +181,7 @@
 
 
                 canvas.addEventListener("touchstart", function(){
+			console.log("touchstart");
                     var touchPos = events.getTouchPos();
                     
                     // update drawing params
@@ -199,6 +200,7 @@
                 }, false);
                 
                 canvas.addEventListener("touchend", function(){
+			console.log("touchend");
                     isMouseDown = false;
                     if (points.length > 0) {
                         drawPath(this, points, canvasImg);
@@ -221,6 +223,7 @@
                 
 
                 canvas.addEventListener("touchmove", function(){
+			console.log("touchmove");
                     if (isMouseDown) {
                         addPoint(this, points);
                         drawPath(canvas, points, canvasImg);                 
