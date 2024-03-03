@@ -195,7 +195,8 @@
                     context.lineWidth = size;
                     context.lineJoin = "round";
                     context.lineCap = "round";
-                    addPoint(events, points);
+			points = [];
+                   // addPoint(events, points);
                     isMouseDown = true;
                 }, false);
                 
@@ -210,31 +211,6 @@
                     canvasImg = getCanvasImg(this);
                 }, false);
                 
-                // canvas.addEventListener("mouseout", function(){
-                //     if (document.createEvent) {
-                //         var evt = document.createEvent('MouseEvents');
-                //         evt.initEvent("mouseup", true, false);
-                //         this.dispatchEvent(evt);
-                //     }
-                //     else {
-                //         this.fireEvent("onmouseup");
-                //     }
-                // }, false);
-                
-
-                canvas.addEventListener("touchmove", function(){
-			console.log("touchmove");
-                    if (isMouseDown) {
-                        addPoint(this, points);
-                        drawPath(canvas, points, canvasImg);                 
-                    }
-                    canvasImg = getCanvasImg(this);
-                }, false);
- 
-
-
-
-
 
                 /////////////////////////////////////////////////////
 
