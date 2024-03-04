@@ -25,17 +25,20 @@ function drawWord(word){
     context.strokeText(word, canvas.width / 2, 120);
 }
 
-function addPoint(events, points){
+            function addPoint(events, points){
+                var context = events.getContext();
 
-    //console.log("add point");
+                var drawingPos = events.getMousePos();
+                var touchPos = events.getTouchPos();
 
-    //var context = events.getContext();//?????
-    var drawingPos = events.getMousePos();
-    
-    if (drawingPos !== null) {
-        points.push(drawingPos);
-    }
-}
+
+                if (drawingPos !== null) {
+                    points.push(drawingPos);
+                }
+                if (touchPos !== null) {
+                    points.push(touchPos);
+                }
+            }
 
 function drawPath( points, canvasImg){
 
@@ -137,7 +140,45 @@ canvas.addEventListener("mouseout", function(){
     }
 }, false);
           
-//drawWord(canvas, "PSUT", canvasImg);
+ ///////////////////////////////////////////////////////
+
+
+                canvas.addEventListener("touchstart", function(){
+
+                    console.log("touchstart");
+                   // var touchPos = events.getTouchPos();
+                    
+                    // update drawing params
+                    red = document.getElementById("red").value;
+                    green = document.getElementById("green").value;
+                    blue = document.getElementById("blue").value;
+                    size = document.getElementById("size").value;
+                    
+                    // start drawing path
+                    context.strokeStyle = "rgb(" + red + "," + green + "," + blue + ")";
+                    context.lineWidth = size;
+                    context.lineJoin = "round";
+                    context.lineCap = "round";
+
+                    points = [];
+                   // addPoint(events, points);
+                    isMouseDown = true;
+                }, false);
+                
+                canvas.addEventListener("touchend", function(){
+
+                    console.log("touchend");
+                    isMouseDown = false;
+
+                 
+                    if (points.length > 0) {
+                        drawPath(this, points, canvasImg);
+                        // reset points
+                        points = [];
+                    }
+                    canvasImg = getCanvasImg(this);
+                }, false);
+            
 
 events.setStage(function(){
     //console.log("set stage");
