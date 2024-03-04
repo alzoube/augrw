@@ -315,7 +315,18 @@ window.onload = function(){
 
                     console.log("touchstart");
                    // var touchPos = events.getTouchPos();
-                    
+                     // update drawing params
+
+                size = document.getElementById("textsize").value;
+
+                // start drawing path
+
+                context.strokeStyle = document.getElementById("clr").value;
+
+                context.lineWidth = size;
+                context.lineJoin = "round";
+                context.lineCap = "round";
+                addPoint(events, points);
           
 
                     points = [];
