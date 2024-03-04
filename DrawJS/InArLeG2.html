@@ -163,7 +163,7 @@
                 canvasImg = getCanvasImg(canvas);
                 console.log("draw word");
 
-                //var context = canvas.getContext("2d");
+                var context = canvas.getContext("2d");
 
                 // clear canvas
                 context.clearRect(0, 0, canvas.width, canvas.height);
@@ -200,7 +200,7 @@
             }
 
             function drawPath( points, canvasImg){
-                context = canvas.getContext("2d");
+             var   context = canvas.getContext("2d");
 
                  // clear canvas
                 context.clearRect(0, 0, canvas.width, canvas.height);
@@ -330,7 +330,7 @@ window.onload = function(){
 
                  
                     if (points.length > 0) {
-                        drawPath(this, points, canvasImg);
+                        drawPath( points, canvasImg);
                         // reset points
                         points = [];
                     }
