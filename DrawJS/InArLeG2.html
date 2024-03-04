@@ -185,7 +185,7 @@
             }
 
             function addPoint(events, points){
-                context = events.getContext();
+               var context = events.getContext();
 
                 var drawingPos = events.getMousePos();
                 var touchPos = events.getTouchPos();
@@ -200,7 +200,7 @@
             }
 
             function drawPath( points, canvasImg){
-             var   context = canvas.getContext("2d");
+           //  var   context = canvas.getContext("2d");
 
                  // clear canvas
                 context.clearRect(0, 0, canvas.width, canvas.height);
