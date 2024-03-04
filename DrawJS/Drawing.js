@@ -59,14 +59,7 @@ function drawPath( points, canvasImg){
     context.stroke();
 }
 
-// function updateColorSquare(){
-//     var red = document.getElementById("red").value;
-//     var green = document.getElementById("green").value;
-//     var blue = document.getElementById("blue").value;
-    
-//     var colorSquare = document.getElementById("colorSquare");
-//     colorSquare.style.backgroundColor = "rgb(" + red + "," + green + "," + blue + ")";
-// }
+
 
 function getCanvasImg(canvas){
 
@@ -148,17 +141,7 @@ canvas.addEventListener("mouseout", function(){
                     console.log("touchstart");
                    // var touchPos = events.getTouchPos();
                     
-                    // update drawing params
-                    red = document.getElementById("red").value;
-                    green = document.getElementById("green").value;
-                    blue = document.getElementById("blue").value;
-                    size = document.getElementById("size").value;
-                    
-                    // start drawing path
-                    context.strokeStyle = "rgb(" + red + "," + green + "," + blue + ")";
-                    context.lineWidth = size;
-                    context.lineJoin = "round";
-                    context.lineCap = "round";
+               
 
                     points = [];
                    // addPoint(events, points);
