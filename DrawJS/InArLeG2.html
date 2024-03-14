@@ -817,8 +817,8 @@ window.onload = function(){
 
         if(mixer === undefined)  mixer = new THREE.AnimationMixer( object );
         scene.add( object );
-        object.position.set(50,50,50);
-        object.rotation.y=-0.2;
+        object.position.set(180,50,100);
+        object.rotation.y=-0.6;
 
         loadNextAnim(loader);
         
@@ -893,7 +893,7 @@ window.onload = function(){
             animate();     
  
             playAnimation("wave");
-            speek('Ready to start the game ?  Lets go.');  
+            speek('Ready to start the game ?  Lets begin.');  
             
             mixer.addEventListener('finished', NextAnim) ;
         }
