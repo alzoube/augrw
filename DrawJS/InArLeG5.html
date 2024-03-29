@@ -1191,8 +1191,12 @@ var correctAnswer2 = new CustomEvent("CorrectAnswer2");
 
         function launchMatch(pattern) {
             var text = lessonText;
-        
-            var match = dmp.match_main(text, pattern, 0);
+            var loc = 1;
+            dmp.Match_Distance = 1000;
+            dmp.Match_Threshold = 0.5;
+
+            var match = dmp.match_main(text, pattern, loc);
+           
 
             console.log(match);
             
