@@ -1,5 +1,8 @@
 {
-"adverbs":["Bored","good"],
-"verbs":["bye","wave"],
-"nouns":["clock", "chair"]
+    "furniture":["table", "chair", "tent", "fan"],
+    "objects":["lighter","lantern","bottle","bucket","pan", "clock", "hat"  ],
+    "verbs":["climb", "fly", "throw", "crawl", "clap"],
+    "animals":["cow", "sheep", "horse", "llama", "zebra"],
+    "fruites" : ["orange"],
+    "sport" :["swim", "racket", "jump", "run"]
 }
