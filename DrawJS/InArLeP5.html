@@ -484,7 +484,13 @@ function drawWord(word){
                         console.log('An error occurred: ' + err);
                 });
 
-            
+                var videoMaterial = new THREE.MeshBasicMaterial({
+                    map: texture,
+                    });
+                var videoGeometry = new THREE.PlaneGeometry(1, 1);
+                var videoMesh = new THREE.Mesh(videoGeometry, videoMaterial);
+                videoMesh.position.set(0, 0, 0);
+                orthoScene.add(videoMesh);
                 
                 button.value = 'Stop Video';
                 button.innerText = 'Stop Video';
@@ -502,6 +508,15 @@ function drawWord(word){
                // clearInterval(timerId);//stop AR
                 button.value = 'Play Video';
                 button.innerText = 'Play Video';
+
+                var videoWhite = new THREE.MeshBasicMaterial({
+                    color: 0xffffff ,
+                    });
+                var videoGeometry = new THREE.PlaneGeometry(1, 1);
+                var videoMesh = new THREE.Mesh(videoGeometry, videoWhite);
+                videoMesh.position.set(0, 0, 0);
+                orthoScene.add(videoMesh);
+              
             }
         }
 
