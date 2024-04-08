@@ -64,6 +64,42 @@
                 font-size: 20px;
              
             }
+
+
+
+
+
+            #toolbar2 {
+                width: 1.5cm; /* Adjust width as needed */
+                height: 50vh; /* Full viewport height */
+                position: fixed;
+                top: 50;
+                left: 2;
+                background-color: #f0f0f0; /* Light gray background */
+                padding: 5px;
+                display: flex; /* Arrange elements vertically */
+                flex-direction: column; /* Stack elements on top of each other */
+                /*justify-content: space-between;  Distribute space evenly */
+        }
+
+        #toolbar2 input {
+            margin-bottom: 15px;
+             display: inline-block; 
+        }
+
+        #scale {
+            /* orient:"vertical"; */
+            -webkit-appearance: slider-vertical;
+            appearance: vertical-slider;
+            height: 50%; /* Adjust height as needed */
+        }
+    
+        #toolbar2 label{
+                color: #2876a7;
+                font-size: 15px;
+                margin-bottom: 1px;
+                font-weight: bold;
+            }
 </style>
 
 
@@ -151,11 +187,20 @@
       </ul>
 
 
-
     <canvas id="myCanvas" width="1000" height="550"   style="position:absolute; ">
     </canvas>
 
 
+
+    
+      <div id="toolbar2">
+        <label>Hide:</label>
+        <input type="checkbox" id="hideShow" > 
+        <label>Rotate:</label>
+        <input type="checkbox" id="rotate"> 
+        <label>Scale:</label>
+        <input type="range" min="0.1" max="2" value="1" step="0.1" id="scale" orient="vertical">
+    </div>
 
 
         <div id="messages"></div> 
@@ -335,10 +380,6 @@ window.onload = function(){
 
 
                 canvas.addEventListener("touchstart", function(){
-
-                   // console.log("touchstart");
-                   // var touchPos = events.getTouchPos();
-                     // update drawing params
 
                 size = document.getElementById("textsize").value;
 
@@ -615,7 +656,6 @@ init();
 
         //console.log(keys)
 
-        // Loop through the keys and create an option for each one
         for (var i = 0; i < keys.length; i++) {
             var option = document.createElement('option');
             option.text = keys[i];
@@ -823,7 +863,7 @@ init();
     
 
         animations = ["idle", "talk", "wave", "victory", "point"];
-        lesson = ["table", "chair", "tent", "fan"];
+        lesson = ["lighter","lantern","bottle","bucket","hat"  ];
 
 
         for(let i=0; i<lesson.length;i++) numbers[i]=i;
@@ -1192,11 +1232,11 @@ var correctAnswer2 = new CustomEvent("CorrectAnswer2");
         function launchMatch(pattern) {
             var text = lessonText;
             var loc = 1;
+
             dmp.Match_Distance = 1000;
             dmp.Match_Threshold = 0.5;
 
             var match = dmp.match_main(text, pattern, loc);
-           
 
             console.log(match);
             

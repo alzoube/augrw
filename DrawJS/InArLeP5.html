@@ -27,7 +27,7 @@
         margin: 0px 5px 0px 5px;
     }
 
-    label {
+    #toolbar  label {
         margin-left: 40px;
     }
 
@@ -35,7 +35,7 @@
         margin-left: 0px;
     }
 
-    input[type = 'button'] {
+    #toolbar input[type = 'button'] {
         float: right;
     }
 
@@ -48,7 +48,7 @@
         top: 4px;
     }
 
-    button {
+    #toolbar button {
             /* Style the button here */
             background-color: #a8d8ec; /* Light gray background */
             color: #333; /* Dark gray text */
@@ -67,7 +67,7 @@
             span, label{
                 color: #2876a7;
                 font-size: 30px;
-                font-weight: bold;
+                /* font-weight: bold; */
             }
           select{
                 color: #078391;
@@ -76,8 +76,68 @@
             }
 
 
+
+
+            #toolbar2 {
+                width: 1.5cm; /* Adjust width as needed */
+                height: 50vh; /* Full viewport height */
+                position: fixed;
+                top: 50;
+                left: 2;
+                background-color: #f0f0f0; /* Light gray background */
+                padding: 5px;
+                display: flex; /* Arrange elements vertically */
+                flex-direction: column; /* Stack elements on top of each other */
+                /*justify-content: space-between;  Distribute space evenly */
+        }
+
+        #toolbar2 input {
+            margin-bottom: 15px;
+             display: inline-block; 
+        }
+
+        #scale {
+            /* orient:"vertical"; */
+            -webkit-appearance: slider-vertical;
+            appearance: vertical-slider;
+            height: 50%; /* Adjust height as needed */
+        }
     
-    
+        #toolbar2 label{
+                color: #2876a7;
+                font-size: 15px;
+                margin-bottom: 1px;
+                font-weight: bold;
+            }
+
+
+
+            #toolbar3 {
+   
+                width: 30%; /* Match full width */
+                height: 1cm; /* Adjust height as needed */
+                position: fixed; /* Fix to bottom */
+                bottom: 0; /* Place at bottom */
+               /* background-color: #d4d4d4;  Light gray background */
+                display: flex; /* Arrange buttons horizontally */
+                /*justify-content: space-between;  Distribute buttons evenly */
+            }
+
+            .icon-button {
+                width: 40px; /* Auto-adjust width based on content */
+                height: 100%; /* Match toolbar height */
+                border: none;  /*Remove default button border */
+                background-color: transparent; /* Transparent background */
+                cursor: pointer; /* Indicate interaction on hover */
+
+                &:hover {
+                    background-color: #ddd; 
+                }
+
+
+            }
+
+
   </style>
 
     <script type="importmap">
@@ -90,10 +150,10 @@
       </script>
 
 
-  <script src="../dist/tesseract.min.js"></script>
-  <script type="text/javascript" src="../js/cv.js"></script>
-  <script type="text/javascript" src="../js/aruco.js"></script>
-   <script src="events.js"></script> 
+    <script src="../dist/tesseract.min.js"></script>
+    <script type="text/javascript" src="../js/cv.js"></script>
+    <script type="text/javascript" src="../js/aruco.js"></script>
+    <script src="events.js"></script> 
 
 
   
@@ -105,8 +165,10 @@
 
         <div id="sep"></div>
         <div id="messages"></div>
-        <canvas id="canvas" width="480" height="480" style="border: 3px solid skyblue;display:none;"></canvas>
-        <canvas id="canvasC" width="640" height="480" style="border: 3px solid #32cd32;display:none;"></canvas>
+        <canvas id="canvas" width="160" height="160" style="border: 3px solid skyblue;display:none;"></canvas>
+        <canvas id="canvasC" width="160" height="160" style="border: 3px solid #32cd32;display:none;"></canvas>
+        <!-- <img id="img1" src="bg22.jpg" width="160" height="160" style="border: 3px solid #cd3268;display:non;"/>
+        <canvas id="can" width="160" height="160" style="border: 3px solid skyblue;display:non;"></canvas> -->
 
     </div>
 
@@ -123,10 +185,12 @@
             Color
         </label>
             <input type="color" id="clr"   value="#f6b73c">
+            
+
         <label>
             Size:
         </label>
-        <input type="range" id="textsize" min="5" max="20" value="10" step="5">
+        <input type="range" id="textsize" min="5" max="20" value="10" step="1">
         <button type="button" id="clearButton" value="Clear">Clear </button>
         <button type="button" id="play_button"   value="Stop Video">Stop Video </button>
         <button type="button" id="scan_button"  value="Start AR">Start AR </button>
@@ -135,7 +199,25 @@
     <canvas id="myCanvas" width="1000" height="650" style="position:absolute;">
     </canvas>
 
+  
 
+
+    <div id="toolbar2">
+        <label>Hide:</label>
+        <input type="checkbox" id="hideShow" > 
+        <label>Rotate:</label>
+        <input type="checkbox" id="rotate"> 
+        <label>Scale:</label>
+        <input type="range" min="0.1" max="2" value="1" step="0.1" id="scale" orient="vertical">
+    </div>
+
+    <div id="toolbar3">
+        <button id="button1" class="icon-button">   <img  src="rewr.jpg"  width="36"/> </button>
+        <button id="button2" class="icon-button">   <img  src="snd.jpg" width="36"/> </button>
+    </div>
+ 
+    </html>
+    
 
 </body>
                            
@@ -226,15 +308,6 @@ function drawWord(word){
             var points = [];
 
 
-            // document.getElementById("clearButton").addEventListener("click", function(evt){
-            //     events.clear();
-            //     points = [];
-            //     canvasImg = getCanvasImg(canvas);
-
-            // }, false);
-
-
-
 
             document.getElementById("clearButton").addEventListener("click",clearCanv , false);
             function clearCanv(evt){
@@ -246,12 +319,7 @@ function drawWord(word){
 
             canvas.addEventListener("mousedown", function(){
 
-                //console.log("down");
-
                 var drawingPos = events.getMousePos();
-
-                // update drawing params
-
                 size = document.getElementById("textsize").value;
 
                 // start drawing path
@@ -292,7 +360,7 @@ function drawWord(word){
                 }
             }, false);
 
-            //drawWord(canvas, "PSUT", canvasImg);
+        
 
             events.setStage(function(){
                 //console.log("set stage");
@@ -309,10 +377,6 @@ function drawWord(word){
 
                 canvas.addEventListener("touchstart", function(){
 
-                    //console.log("touchstart");
-                   // var touchPos = events.getTouchPos();
-                     // update drawing params
-
                 size = document.getElementById("textsize").value;
 
                 // start drawing path
@@ -326,7 +390,7 @@ function drawWord(word){
           
 
                     points = [];
-                   // addPoint(events, points);
+                   
                     isMouseDown = true;
                 }, false);
                 
@@ -383,12 +447,11 @@ function drawWord(word){
     var markers, detector;
 
     var warpImage, homographyImageR, homographyImageG, homographyImageB;
-    //var aImageData =[];
+   
     var cnvs;
     var cxt;
     var offset =10;
-    let rotation = 0;
-    var img;
+   
 
     let vocab = ["one", "swim", "run","laugh", "clap", "think", "salute", "angry", "talk", "victory", "pray", "look", "fly", "crawl", "climb", "throw"];
     var doc= document.querySelector('#root');
@@ -405,7 +468,10 @@ function drawWord(word){
     var word, model;
     var moveIt=false;
 
-    var loader;
+    var loader, text2;
+    var rotated = false;
+    var rotatModel = false;
+    var hideshow = true;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -462,6 +528,53 @@ function drawWord(word){
 
 
 
+///  toolvar
+
+        const hideShowCheckbox = document.getElementById("hideShow");
+        const rotateCheckbox = document.getElementById("rotate");
+        const scaleSlider = document.getElementById("scale");
+    // const contentDiv = document.getElementById("content");
+
+        hideShowCheckbox.addEventListener("change", () => {
+
+            hideshow = !hideshow;      
+            model.visible = hideshow;          
+        });
+
+        rotateCheckbox.addEventListener("change", () => {
+                rotatModel = !rotatModel;
+        });
+
+        scaleSlider.addEventListener("input", () => {
+            const scaleValue = scaleSlider.value;
+            
+            model.scale.set(scaleValue, scaleValue, scaleValue);
+        });
+
+
+
+        const button1 = document.getElementById("button1");
+        const button2 = document.getElementById("button2");
+
+        // Add event listeners to buttons (replace with your desired actions)
+        button1.addEventListener("click", () => {
+            console.log("Button 1 clicked!"); 
+
+            if(text2) {
+                drawWord(text2);
+            }
+        });
+
+        button2.addEventListener("click", () => {
+            console.log("Button 2 clicked!");
+           if(text2) {
+                SayIt(text2);
+                playTalkAnimation() ;
+           }
+        });
+
+////////////////
+
 
 //****************************     Start  Video ************************************//
 
@@ -490,15 +603,13 @@ function drawWord(word){
                 var videoGeometry = new THREE.PlaneGeometry(1, 1);
                 var videoMesh = new THREE.Mesh(videoGeometry, videoMaterial);
                 videoMesh.position.set(0, 0, 0);
-                orthoScene.add(videoMesh);
+                orthoScene.add(videoMesh);                
                 
                 button.value = 'Stop Video';
                 button.innerText = 'Stop Video';
-
-
-                //scene.background = new THREE.Color( 0x000000);
+               
             } else {
-               // scene.background = new THREE.Color( 0xffffff );
+               
                 var tracks = video.srcObject.getTracks();
 
                 // Stop each track
@@ -516,7 +627,11 @@ function drawWord(word){
                 var videoMesh = new THREE.Mesh(videoGeometry, videoWhite);
                 videoMesh.position.set(0, 0, 0);
                 orthoScene.add(videoMesh);
-              
+
+                if(text2)
+                    drawWord( text2);
+                
+
             }
         }
 
@@ -559,8 +674,6 @@ function drawWord(word){
         c.height = 480;
 
         initARApp();
-        //initAudio();
-
 
                 // read lessons
                 fetch('Lessons.json')
@@ -600,10 +713,8 @@ function drawWord(word){
             var str = JSON.stringify(data);
             dictionary = JSON.parse(str);
 
-            // Get the dropdown element
-            var dropdown = document.getElementById('dropdown');
-
-            // Get the keys of the dictionary
+           
+            var dropdown = document.getElementById('dropdown');    
             var keys = Object.keys(dictionary);
 
             //console.log(keys)
@@ -634,9 +745,11 @@ function drawWord(word){
     }
 
     async  function drawWarpsC(red, green, blue, contours){
-        console.log("drawWarpC");
+        //console.log("drawWarpC");
+  
         let contour;
         cxt.clearRect(0, 0, cnvs.width, cnvs.height);
+  
 
         for(let i=0; i<contours.length; i++){
             contour = contours[i];
@@ -647,32 +760,17 @@ function drawWord(word){
 
             createImageC(homographyImageR,homographyImageG,homographyImageB, warpImage);
             cxt.putImageData(warpImage, 0, 0);
-            //img.src = canvas.toDataURL();
+         
             TryOCR2Text(warpImage);
-
-            // context.putImageData(warpImage, 0, 0, offset, offset, cnvs.width-(offset*2),cnvs.height-(offset*2));
-            // let id = context.getImageData(0, 0, cnvs.width-(offset*2),cnvs.height-(offset*2));
-            // img.src = cnvs.toDataURL();
-            // TryOCR2Speek(id);
-            // for(i=1;i<=3;i++){
-            //     rotation += 90;
-            //     if (rotation === 270) {
-            //         rotation = 0;
-            //     }
-            //     img.style.transform = `rotate(${rotation}deg)`;
-            //     cxt.drawImage(img, 0, 0);
-            //     let id = context.getImageData(0, 0, cnvs.width,cnvs.height);
-            //     TryOCR2Speek(id);
-            // }
 
         }
     }
 
     async function TryOCR2Text(pxls){
 
-        console.log("TryOCR2Text");
-        var image = document.createElement("img");
-        var croppedImage = document.createElement("img");
+        //console.log("TryOCR2Text");
+       // var image = document.createElement("img");
+       // var croppedImage = document.createElement("img");
         let d=pxls.data;
         let threshold =150;
         //W/B
@@ -685,7 +783,7 @@ function drawWord(word){
         }
         //console.log(canvas);
         cxt.putImageData(pxls,0,0);
-        image.src = cnvs.toDataURL();
+       // image.src = cnvs.toDataURL();
 
     //Crop
 
@@ -695,28 +793,60 @@ function drawWord(word){
         var destinationCanvas = document.getElementById('canvasC');
         var destinationContext = destinationCanvas.getContext('2d', {willReadFrequently: true});
 
+        //destinationContext.setTransform();
+
+
         var cropX = 10, cropY = 10, cropWidth = 140, cropHeight = 140;
 
         destinationContext.drawImage(sourceCanvas, cropX, cropY, cropWidth, cropHeight, 0, 0, cropWidth, cropHeight);
 
-        const croppedImageData = destinationContext.getImageData(0, 0, cropWidth, cropHeight);
-        croppedImage.src = destinationCanvas.toDataURL();
+        if(rotated){
+            rotated=false;
+            destinationContext.setTransform();
+        }
+
+
+        //const croppedImageData = destinationContext.getImageData(0, 0, cropWidth, cropHeight);
+       // croppedImage.src = destinationCanvas.toDataURL();
 
         const { data: { text } } = await worker.recognize(destinationCanvas);
 
-        console.log(text);
+        //console.log(text);
 
         addMessage(text);
 
-        let text2 = text.substring(0,text.length-1);
-        //console.log(text2);
+        text2 = text.substring(0,text.length-1);
+   
         text2=text2.toLowerCase();
 
 
         if(lesson.includes(text2)){
-
+            //console.log( "not rotated ");
             drawWord( text2);
             SpeakandAnimate(text2);
+
+        }
+        else{
+
+            destinationContext.translate(destinationCanvas.width /2, destinationCanvas.height /2);
+            destinationContext.rotate(Math.PI / 2);
+            destinationContext.translate(-destinationCanvas.width /2, -destinationCanvas.height /2);
+            //console.log( "  rotated");
+            rotated =true;
+
+            const { data: { text } } = await worker.recognize(destinationCanvas);
+
+            //console.log(text);
+           // destinationContext.setTransform();
+            addMessage(text);
+
+            text2 = text.substring(0,text.length-1);
+            text2=text2.toLowerCase();
+
+            if(lesson.includes(text2)){
+                drawWord( text2);
+                SpeakandAnimate(text2);
+            }            
 
         }
     }
@@ -741,7 +871,7 @@ function drawWord(word){
 
 
             let idx =lesson.indexOf(message);
-            //console.log("idx: "+ idx);
+            console.log("idx: "+ idx);
 
             successSound.play();
             if(idx != -1) {
@@ -846,7 +976,7 @@ function drawWord(word){
         animations = ["idle", "talk", "wave", "victory"];
         //lesson = ["table lamp","watering can","lighter","racket","lantern","fan","bottle","bucket","pan", "clock", "chair", "hat", "orange", "table", "clap", "swim", "climb", "fly", "throw", "crawl", "jump", "run"];
 
-        lesson = ["table", "chair", "tent", "fan"];
+        lesson = ["lighter","lantern","bottle","bucket","hat"  ];
 
         console.log(lesson);
 
@@ -1042,8 +1172,6 @@ function drawWord(word){
             else{
                 loadLesson(loader);
             }
-
-
         });
     }
 
@@ -1096,7 +1224,7 @@ function drawWord(word){
         mixer.stopAllAction();
         const action = actions[2];
         action.weight = 1;
-        action.fadeIn(.8);
+        action.fadeIn(0.5);
         action.setLoop(THREE.LoopRepeat , 5);
         //action.clampWhenFinished = true;
         action.play();
@@ -1107,7 +1235,7 @@ function drawWord(word){
         const action = actions[1];
         action.setLoop(THREE.LoopRepeat , 1);
         action.weight = 1;
-        action.fadeIn(.8);
+        action.fadeIn(0);
         action.play();
         //action.clampWhenFinished = true;
     }
@@ -1145,18 +1273,19 @@ function drawWord(word){
 
         if ( mixer ) mixer.update( delta );
 
+        if(rotatModel){
+            if(model){
 
-        if(model){
+                model.rotation.y +=0.01;
 
-            model.rotation.y +=0.01;
+                // if(moveIt){
+                //     if(model.position.x < 100){
+                //         model.position.x+=1;
+                //     }else{
 
-            if(moveIt){
-                if(model.position.x < 100){
-                    model.position.x+=1;
-                }else{
-
-                    model.scale.set(0.9, 0.9, 0.9);
-                }
+                //         model.scale.set(0.9, 0.9, 0.9);
+                //     }
+                // }
             }
         }
     }
@@ -1165,7 +1294,7 @@ function drawWord(word){
 //*******************    Audio   *********************//
 
 
-    const audioClips = [];
+   // const audioClips = [];
 
 </script> 
 
