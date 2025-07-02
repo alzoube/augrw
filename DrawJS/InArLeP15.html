@@ -865,7 +865,8 @@ function drawWord(word){
         //destinationContext.setTransform();
 
 
-        var cropX = 5, cropY = 1, cropWidth = 145, cropHeight = 145;
+
+        var cropX = 10, cropY = 10, cropWidth = 140, cropHeight = 140;
 
         destinationContext.drawImage(sourceCanvas, cropX, cropY, cropWidth, cropHeight, 0, 0, cropWidth, cropHeight);
 
@@ -874,8 +875,8 @@ function drawWord(word){
             destinationContext.setTransform();
         }
 
-
-        const croppedImageData = destinationContext.getImageData(0, 0, cropWidth, cropHeight);
+        const croppedImageData = destinationContext.getImageData(0, 0, cropWidth-(cropX*2), cropHeight-(cropY*2));
+       
         croppedImage.src = destinationCanvas.toDataURL();
 
         const { data: { text } } = await worker.recognize(destinationCanvas);
