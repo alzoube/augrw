@@ -1,0 +1,1381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+  <meta charset="UTF-8">
+  <title></title>
+  <style>
+    canvas {
+        border: 1px solid rgba(0, 0, 0, 0);
+        font-family: "Helvetica Neue", "Arial", "Lucida Grande", "Lucida Sans Unicode", "Microsoft YaHei", sans-serif;
+        font-size: 5px;
+        line-height: 1.5;
+        color: #474747;
+        background: transparent; 
+    }
+
+    /* #toolbar {
+        width: 100%;
+       /* border: 1px solid black;
+        border-bottom: 0px;
+        padding: 5px;
+        background-color: #f8f8f8;
+    } */
+
+    #toolbar {
+        width: 100%;
+        border-bottom: 0; /* 0px is 0 */
+        padding: 0.3125rem; /* 5px / 16px */
+        background-color: #38d333;
+        box-sizing: border-box; /* Added for better width calculation */
+        position: relative; /* ADDED: to enable z-index */
+        z-index: 11;      /* ADDED: to be above #myCanvas (which has z-index: 10) */
+    }
+
+
+    input[type = 'text'] {
+        width: 30px;
+        margin: 0px 5px 0px 5px;
+    }
+
+    #toolbar  label {
+        margin-left: 40px;
+    }
+
+    label:first-of-type {
+        margin-left: 0px;
+    }
+
+    #toolbar input[type = 'button'] {
+        float: right;
+    }
+
+    /* #colorSquare {
+        position: relative;
+        display: inline-block;
+        width: 20px;
+        height: 20px;
+        background-color: #0c7fb9;
+        top: 4px;
+    } */
+
+    #colorSquare {
+        position: relative;
+        display: inline-block;
+        width: 1.25rem; /* 20px / 16px */
+        height: 1.25rem; /* 20px / 16px */
+        background-color: #0c7fb9;
+        top: 0.25rem; /* 4px / 16px */
+    }
+
+    #toolbar button {
+            background-color: #24d088; 
+            color: #333; 
+           padding: 0.3125rem; /*  5px / 16px 
+            border: none; 
+            border-radius: 0.125rem; /* 2px / 16px 
+            cursor: pointer; 
+            font-size: 1rem; /* 16px / 16px 
+            }
+ 
+
+            button:hover {
+            /* Change styles on hover */
+            background-color: #5ed0e4; /* Slightly darker on hover */
+            }
+
+            span, label{
+                color: #2876a7;
+                font-size: 20px;
+                /* font-weight: bold; */
+            }
+          select{
+                color: #078391;
+                font-size: 16px;
+             
+            }
+
+
+    #toolbar2 {
+        /* 1.1cm approx 41.57px. 41.57px / 16px = 2.598rem, rounded to 2.6rem */
+        width: 3.6rem; 
+        height: 70vh; 
+        position: fixed;
+        top: 3.125rem; /* 50px / 16px */
+        left: 0.125rem; /* 2px / 16px */
+        background-color: #99c4f6; 
+        padding: 0.125rem; /* 2px / 16px */
+        display: flex; 
+        flex-direction: column; 
+        box-sizing: border-box; /* Added for better padding calculation */
+        z-index: 11;      /* ADDED: to be above #myCanvas */
+    }
+        #toolbar2 input {
+            margin-bottom: 15px;
+             display: inline-block; 
+        }
+
+        #scale {
+            /* orient:"vertical"; */
+            -webkit-appearance: slider-vertical;
+            appearance: vertical-slider;
+            height: 50%; /* Adjust height as needed */
+        }
+    
+        #toolbar2 label{
+                color: #2876a7;
+                font-size: 15px;
+                margin-bottom: 1px;
+                font-weight: bold;
+            }
+
+
+
+   #toolbar3 {
+        padding: 0.3125rem; /* 5px / 16px */
+        width: 70%; 
+        /* 1cm approx 37.795px. 37.795px / 16px = 2.362rem, rounded to 2.36rem */
+        height: 2.36rem; 
+        position: fixed; 
+        bottom: 0; 
+        display: flex; 
+        box-sizing: border-box; /* Added for better padding calculation */
+        /* align-items: center; -- useful for vertical alignment of content */
+        /* justify-content: space-between; -- if you want space between items */
+        z-index: 11;      /* ADDED: to be above #myCanvas */
+    }
+            #toolbar3 span {
+                align-self: center;
+                margin: auto;
+                color: black;
+            }
+            .icon-button {
+                width: 40px; /* Auto-adjust width based on content */
+                height: 100%; /* Match toolbar height */
+                border: none;  /*Remove default button border */
+                background-color: transparent; /* Transparent background */
+                cursor: pointer; /* Indicate interaction on hover */
+
+                &:hover {
+                    background-color: #ddd; 
+                }
+
+
+            }
+
+
+  </style>
+
+    <title>Word Edu</title>
+
+
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "../build/three.module.js",
+                "three/addons/": "../jsm/"
+            }
+        }
+      </script>
+
+
+    <script src="../dist/tesseract.min.js"></script>
+    <script type="text/javascript" src="../js/cv.js"></script>
+    <script type="text/javascript" src="../js/aruco.js"></script>
+    <script src="events.js"></script> 
+
+
+  
+</head>
+<body>
+    <div id="root">
+
+        <video id="webcam" width="640" height="480" style="display:none;"></video>
+
+        <div id="sep"></div>
+        <div id="messages"></div>
+        <canvas id="canvas" width="160" height="160" style="border: 3px solid skyblue;display:none;"></canvas>
+        <canvas id="canvasC" width="160" height="160" style="border: 3px solid #32cd32;display:none;"></canvas>
+        <!-- <img id="img1" src="bg22.jpg" width="160" height="160" style="border: 3px solid #cd3268;display:non;"/>
+        <canvas id="can" width="160" height="160" style="border: 3px solid skyblue;display:non;"></canvas> -->
+
+    </div>
+
+
+    <div id="toolbar" >
+        <label for="dropdown">
+            Lesson:
+        </label>
+        <select id="dropdown">
+            
+        </select> 
+
+        <label for="clr">
+            Color
+        </label>
+            <input type="color" id="clr"   value="#F73BC5">
+            
+
+        <label>
+            Size:
+        </label>
+        <input type="range" id="textsize" min="5" max="20" value="10" step="1">
+        <button type="button" id="clearButton" value="clear">clear </button>
+        <button type="button" id="play_button"   value="stop video">stop video </button>
+        <button type="button" id="scan_button"  value="start AR">start AR </button>
+
+    </div>
+    <canvas id="myCanvas" width="800" height="450" style="position:absolute;">
+    </canvas>
+
+  
+
+
+    <div id="toolbar2">
+        <label>Hide:</label>
+        <input type="checkbox" id="hideShow" > 
+        <label>Rotate:</label>
+        <input type="checkbox" id="rotate" checked> 
+        <label>Scale:</label>
+        <input type="range" min="0.1" max="2" value="1" step="0.1" id="scale" orient="vertical">
+    </div>
+
+    <div id="toolbar3">
+        <button id="button1" class="icon-button">   <img  src="rewr.jpg"  width="36"/> </button>
+        <button id="button2" class="icon-button">   <img  src="snd.jpg" width="36"/> </button>
+          
+        <span id="words">  </span>
+    </div>
+ 
+    </html>
+    
+
+</body>
+                           
+
+<script>
+
+
+ function addPoint(events, points){
+               var context = events.getContext();
+
+                var drawingPos = events.getMousePos();
+                var touchPos = events.getTouchPos();
+
+
+                if (drawingPos !== null) {
+                    points.push(drawingPos);
+                }
+                if (touchPos !== null) {
+                    points.push(touchPos);
+                }
+            }
+
+
+function drawWord(word){
+
+                canvasImg = getCanvasImg(canvas);
+                console.log("draw word");
+
+                var context = canvas.getContext("2d");
+
+                // clear canvas
+                context.clearRect(0, 0, canvas.width, canvas.height);
+
+                // redraw canvas before path
+                context.drawImage(canvasImg, 0, 0, canvas.width, canvas.height);
+
+                //Draw word
+                context.beginPath();
+                context.font = "160pt Calibri";
+                //context.font = "200pt 'Comic Sans MS' ";
+                context.fillStyle = "white";
+                context.strokeStyle = "#0c7fb9";
+                context.textAlign = "right";
+                context.lineWidth = 3;
+                // align text vertically center
+                context.textBaseline = "middle";
+                //context.fillText(word, canvas.width / 2, 100);
+                context.strokeText(word, canvas.width / 1.2, 240);
+            }
+
+
+
+            function drawPath( points, canvasImg){
+           //  var   context = canvas.getContext("2d");
+
+                context.drawImage(canvasImg, 0, 0, canvas.width, canvas.height);
+
+                // draw patch
+                context.beginPath();
+                context.lineTo(points[0].x, points[0].y);
+                for (var n = 1; n < points.length; n++) {
+                    var point = points[n];
+                    context.lineTo(point.x, point.y);
+                }
+                context.stroke();
+            } 
+
+ function getCanvasImg(canvas){
+
+                //console.log("get image");
+                var img = new Image();
+                img.src = canvas.toDataURL();
+                return img;
+            }
+   
+
+///////////////////////////////////////////////////////////////////
+
+
+        window.onload = function(){
+
+//console.log("onLoad");
+            var events = new Events("myCanvas");
+            canvas = events.getCanvas();
+            context = events.getContext();
+            var isMouseDown = false;
+            var canvasImg = getCanvasImg(canvas);
+            var points = [];
+
+
+
+            document.getElementById("clearButton").addEventListener("click",clearCanv , false);
+            function clearCanv(evt){
+                events.clear();
+                points = [];
+                canvasImg = getCanvasImg(canvas);
+                window.hideAllObjects();
+            }
+            window.clearCanv = clearCanv;
+
+            canvas.addEventListener("mousedown", function(){
+
+                var drawingPos = events.getMousePos();
+                size = document.getElementById("textsize").value;
+
+                // start drawing path
+
+                context.strokeStyle = document.getElementById("clr").value;
+
+                context.lineWidth = size;
+                context.lineJoin = "round";
+                context.lineCap = "round";
+                addPoint(events, points);
+                isMouseDown = true;
+            }, false);
+
+            canvas.addEventListener("mouseup", function(){
+
+                //console.log("up");
+
+                isMouseDown = false;
+                if (points.length > 0) {
+                    drawPath( points, canvasImg);
+                    // reset points
+                    points = [];
+                }
+                canvasImg = getCanvasImg(this);
+            }, false);
+
+            canvas.addEventListener("mouseout", function(){
+
+                //console.log("out");
+
+                if (document.createEvent) {
+                    var evt = document.createEvent('MouseEvents');
+                    evt.initEvent("mouseup", true, false);
+                    this.dispatchEvent(evt);
+                }
+                else {
+                    this.fireEvent("onmouseup");
+                }
+            }, false);
+
+        
+
+            events.setStage(function(){
+                //console.log("set stage");
+                if (isMouseDown) {
+
+                    addPoint(this, points);
+                    drawPath( points, canvasImg);
+                }
+            });
+
+
+ ///////////////////////////////////////////////////////
+
+
+                canvas.addEventListener("touchstart", function(){
+
+                size = document.getElementById("textsize").value;
+
+                // start drawing path
+
+                context.strokeStyle = document.getElementById("clr").value;
+
+                context.lineWidth = size;
+                context.lineJoin = "round";
+                context.lineCap = "round";
+                addPoint(events, points);
+          
+
+                    points = [];
+                   
+                    isMouseDown = true;
+                }, false);
+                
+                canvas.addEventListener("touchend", function(){
+
+                   // console.log("touchend");
+                    isMouseDown = false;
+
+                 
+                    if (points.length > 0) {
+                        drawPath( points, canvasImg);
+                        // reset points
+                        points = [];
+                    }
+                    canvasImg = getCanvasImg(this);
+                }, false);
+    
+
+
+        };//onLoad
+
+
+       
+</script> 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+                                    <!-- Init -->
+
+    <script type="module">
+
+            import * as THREE from 'three';
+            import { OrbitControls } from 'three/addons/OrbitControls.js';
+            import Stats from 'three/addons/libs/stats.module.js';
+            import { FBXLoader } from 'three/addons/loaders/FBXLoader.js';
+
+            const clock = new THREE.Clock();
+
+    let animations,camera,scene,mixer,actions = [], objects, models3d =[], Lmixer, Lanims =[], action;
+    var canvas, context; 
+    var texture;
+    var  renderer, orthoScene, orthoCam, controls;
+
+    var width = window.innerWidth;
+    var height = window.innerHeight ;
+    var markers, detector;
+
+    var warpImage, homographyImageR, homographyImageG, homographyImageB;
+   
+    var cnvs;
+    var cxt;
+    var offset =10;
+   
+
+   // let vocab = ["one", "swim", "run","laugh", "clap", "think", "salute", "angry", "talk", "victory", "pray", "look", "fly", "crawl", "climb", "throw"];
+    var doc= document.querySelector('#root');
+    var synth = window.speechSynthesis;
+
+    var voices = [];
+    var dictionary = {};
+    var dictionarySentence = {};
+    var selectedValues = [];
+    var selectedSentences = [];
+    window.lesson =[];
+    var successSound;
+    var isCorrect =false;
+
+
+    var word, model;
+    var moveIt=false;
+
+    var loader, text2;
+    var rotated = false;
+    var rotatModel = true;
+    var hideshow = true;
+
+    
+    var croppedImage = document.createElement("img");
+    
+    
+
+
+////////////////////////////////////////////////////////////////////////////////
+
+    function populateVoiceList() {
+        voices = synth.getVoices();
+    }
+
+    populateVoiceList();
+    if (speechSynthesis.onvoiceschanged !== undefined) {
+        speechSynthesis.onvoiceschanged = populateVoiceList;
+    }
+    const messages = document.getElementById('messages');
+    let timerId = null;
+    var c;
+
+
+
+
+    // Create a webcam capture
+    var video = document.getElementById('webcam');
+    console.log("Start Video");
+      
+    navigator.mediaDevices.getUserMedia({
+            video: {
+                facingMode: 'environment'
+            }
+        })
+        .then(function(stream) {
+           
+            video.srcObject = stream;
+            video.play();
+        })
+        .catch(function(err) {
+            console.log('An error occurred: ' + err);
+    });
+
+
+    const addMessage = (m, bold) => {
+        let msg = `<p>${m}</p>`;
+        if (bold) {
+        msg = `<p class="bold">${m}</p>`;
+        }
+        messages.innerHTML = msg;
+        messages.scrollTop = messages.scrollHeight;
+    }
+    cnvs = document.getElementById('canvas');
+    cxt = cnvs.getContext('2d');
+
+    warpImage = cxt.createImageData(160, 160);
+    homographyImageR = new CV.Image();
+    homographyImageB = new CV.Image();
+    homographyImageG = new CV.Image();
+
+
+
+
+///  toolvar
+
+        const hideShowCheckbox = document.getElementById("hideShow");
+        const rotateCheckbox = document.getElementById("rotate");
+        const scaleSlider = document.getElementById("scale");
+    // const contentDiv = document.getElementById("content");
+
+
+
+        var mcanvas = document.getElementById("myCanvas");
+        mcanvas.width = window.innerWidth - 20;
+        mcanvas.height = window.innerHeight - 20;
+
+
+        
+        hideShowCheckbox.addEventListener("change", () => {
+
+            hideshow = !hideshow;      
+            model.visible = hideshow;          
+        });
+
+        rotateCheckbox.addEventListener("change", () => {
+                rotatModel = !rotatModel;
+        });
+
+        scaleSlider.addEventListener("input", () => {
+            const scaleValue = scaleSlider.value;
+            
+            model.scale.set(scaleValue, scaleValue, scaleValue);
+        });
+
+
+
+        const button1 = document.getElementById("button1");
+        const button2 = document.getElementById("button2");
+
+        // Add event listeners to buttons (replace with your desired actions)
+        button1.addEventListener("click", () => {
+            //console.log("Button 1 clicked!"); 
+
+            if(text2) {
+                drawWord(text2);
+            }
+        });
+
+        button2.addEventListener("click", () => {
+           // console.log("Button 2 clicked!");
+           if(text2) {
+                SayIt(text2);
+                playTalkAnimation() ;
+           }
+        });
+
+////////////////
+
+    function hideAllObjects(){
+
+        models3d.forEach(function(mdl) {
+                    mdl.visible=false;
+
+        }); 
+    }
+
+    window.hideAllObjects = hideAllObjects;
+
+//****************************     Start  Video ************************************//
+
+
+        var button = document.getElementById('play_button');
+        button.onclick = function() {
+            if (button.value === 'play video') {
+                
+                navigator.mediaDevices.getUserMedia({
+                    video: {
+                        facingMode: 'environment'
+                    }
+                })
+                .then(function(stream) {
+                    
+                    video.srcObject = stream;
+                    video.play();
+                    })
+                    .catch(function(err) {
+                        console.log('An error occurred: ' + err);
+                });
+
+                var videoMaterial = new THREE.MeshBasicMaterial({
+                    map: texture,
+                    });
+                var videoGeometry = new THREE.PlaneGeometry(1, 1);
+                var videoMesh = new THREE.Mesh(videoGeometry, videoMaterial);
+                videoMesh.position.set(0, 0, 0);
+                orthoScene.add(videoMesh);                
+                
+                button.value = 'stop video';
+                button.innerText = 'stop video';
+               
+            } else {
+               
+                var tracks = video.srcObject.getTracks();
+
+                // Stop each track
+                tracks.forEach(function(track) {
+                    track.stop();
+                });
+               // clearInterval(timerId);//stop AR
+                button.value = 'play video';
+                button.innerText = 'play video';
+
+                var videoWhite = new THREE.MeshBasicMaterial({
+                    color: 0xffffff ,
+                    });
+                var videoGeometry = new THREE.PlaneGeometry(1, 1);
+                var videoMesh = new THREE.Mesh(videoGeometry, videoWhite);
+                videoMesh.position.set(0, 0, 0);
+                orthoScene.add(videoMesh);
+
+                //if(text2) drawWord( text2);
+                
+
+            }
+        }
+
+//***********************      Start AR     *****************************//
+
+
+        var sbutton = document.getElementById('scan_button');
+        sbutton.onclick = function() {
+            
+            if (sbutton.value === 'start AR') {
+
+
+              //  console.log(sbutton.value);
+                sbutton.value = 'stop AR'; 
+                sbutton.innerText= 'stop AR';               
+                timerId = setInterval(doOCR, 1500);
+
+            }else{
+                sbutton.value ='start AR';
+                sbutton.innerText ='start AR';
+                clearInterval(timerId);
+            }
+        }
+
+
+
+
+                        //                <!-- OCR -->
+
+
+    var worker;
+
+    (async () => {
+        worker = await Tesseract.createWorker("eng", 1, {
+            workerPath: "../dist/worker.min.js"
+         });
+
+        c = document.createElement('canvas');
+        c.width = 640;
+        c.height = 480;
+
+        initARApp();
+
+                // read lessons
+                fetch('Lessons.json')
+                        .then(response => response.json())
+                        .then(data => LoadLessons(data))
+                        .catch(error => console.log('Error:', error));
+
+                  //  read sentences:
+                  
+                  fetch('Sentence.json')
+                        .then(response => response.json())
+                        .then(data => LoadSentece(data))
+                        .catch(error => console.log('Error:', error));                  
+
+
+        dropdown.addEventListener('change', function() {
+            
+            var selectedValue = this.value;           
+            selectedValues  = dictionary[selectedValue];
+            selectedSentences = dictionarySentence[selectedValue];
+
+            window.lesson = selectedValues;
+            console.log(lesson);
+
+            document.getElementById("words").innerText = " Words to learn:  "+lesson;
+
+            animIdx=0;
+            odx=0;
+            actions=[];
+            models3d =[];
+            Lanims =[];
+
+            loadNextAnim(loader);
+        });
+
+        detector = new AR.Detector();
+    })();
+
+
+    function LoadLessons(data){
+
+            console.log("Lessons loaded")
+            // console.log(data)
+
+            var str = JSON.stringify(data);
+            dictionary = JSON.parse(str);
+
+           
+            var dropdown = document.getElementById('dropdown');    
+            var keys = Object.keys(dictionary);
+
+            //console.log(keys)
+
+            // Loop through the keys and create an option for each one
+            for (var i = 0; i < keys.length; i++) {
+                var option = document.createElement('option');
+                option.text = keys[i];
+                option.value = keys[i];
+                dropdown.add(option);
+            }           
+    }
+
+    function LoadSentece(data){
+
+                var strs = JSON.stringify(data);
+                dictionarySentence = JSON.parse(strs);
+    }
+
+    const doOCR = async () => {
+        console.log("deOC");
+        const cctx = c.getContext('2d', {willReadFrequently: true});
+        cctx.drawImage(video, 0, 0, 640, 480);
+
+        let pixels =cctx.getImageData(0,0,640,480);
+
+        markers = detector.detect(pixels);
+
+        if(markers.length > 0){
+            //console.log(markers.length);
+            drawWarpsC(detector.red,detector.green, detector.blue, detector.candidates);
+        }
+    }
+
+    async  function drawWarpsC(red, green, blue, contours){
+        //console.log("drawWarpC");
+  
+        let contour;
+        cxt.clearRect(0, 0, cnvs.width, cnvs.height);
+  
+
+        for(let i=0; i<contours.length; i++){
+            contour = contours[i];
+
+            CV.warp(red, homographyImageR, contour, warpImage.width);
+            CV.warp(green, homographyImageG, contour, warpImage.width);
+            CV.warp(blue, homographyImageB, contour, warpImage.width);
+
+            createImageC(homographyImageR,homographyImageG,homographyImageB, warpImage);
+            cxt.putImageData(warpImage, 0, 0);
+         
+            TryOCR2Text(warpImage);
+
+        }
+    }
+
+    async function TryOCR2Text(pxls){
+
+        //console.log("TryOCR2Text");
+       // var image = document.createElement("img");
+
+        let d=pxls.data;
+        let threshold =100;
+        //W/B
+        for (let i=0; i<d.length; i+=4) {
+            let r = d[i];
+            let g = d[i+1];
+            let b = d[i+2];
+            let v = (0.2126*r + 0.7152*g + 0.0722*b >= threshold) ? 255 : 0;
+            d[i] = d[i+1] = d[i+2] = v
+        }
+        //console.log(canvas);
+        cxt.putImageData(pxls,0,0);
+       // image.src = cnvs.toDataURL();
+
+    //Crop
+
+        var sourceCanvas = document.getElementById('canvas');
+        var sourceContext = sourceCanvas.getContext('2d', {willReadFrequently: true});
+
+        var destinationCanvas = document.getElementById('canvasC');
+        var destinationContext = destinationCanvas.getContext('2d', {willReadFrequently: true});
+
+        //destinationContext.setTransform();
+
+
+        var cropX = 5, cropY = 1, cropWidth = 145, cropHeight = 145;
+
+        destinationContext.drawImage(sourceCanvas, cropX, cropY, cropWidth, cropHeight, 0, 0, cropWidth, cropHeight);
+
+        if(rotated){
+            rotated=false;
+            destinationContext.setTransform();
+        }
+
+
+        const croppedImageData = destinationContext.getImageData(0, 0, cropWidth, cropHeight);
+        croppedImage.src = destinationCanvas.toDataURL();
+
+        const { data: { text } } = await worker.recognize(destinationCanvas);
+
+        console.log(text);
+
+       // addMessage(text);
+
+        text2 = text.substring(0,text.length-1);
+   
+        text2=text2.toLowerCase();
+
+
+        if(lesson.includes(text2)){
+            //console.log( "not rotated ");
+            drawWord( text2);
+            SpeakandAnimate(text2);
+
+        }
+        else{
+
+            destinationContext.translate(destinationCanvas.width /2, destinationCanvas.height /2);
+            destinationContext.rotate(Math.PI / 2);
+            destinationContext.translate(-destinationCanvas.width /2, -destinationCanvas.height /2);
+            //console.log( "  rotated");
+            rotated =true;
+
+            const { data: { text } } = await worker.recognize(destinationCanvas);
+
+            console.log(text);
+           // destinationContext.setTransform();
+            //addMessage(text);
+
+            text2 = text.substring(0,text.length-1);
+            text2=text2.toLowerCase();
+
+            if(lesson.includes(text2)){
+                drawWord( text2);
+                SpeakandAnimate(text2);
+            }            
+
+        }
+        //text2="";
+        //addMessage("");
+    }
+
+
+                     //                   <!-- Speech -->
+
+
+
+    function SpeakandAnimate(message){
+
+         if (message !== '') {
+
+
+//**********************       Succes / Fail    (Rcognision of the word marker)  **********************//
+
+        models3d.forEach(function(mdl) {
+                    mdl.visible=false;
+
+        });
+
+
+
+            let idx =lesson.indexOf(message);
+            console.log("idx: "+ idx);
+
+            successSound.play();
+            if(idx != -1) {
+
+                if(Lanims.indexOf(message) != -1 ){
+
+                    playAnimationByName(message, 2) ;                
+                }              
+                else{  //// an Object ?
+
+
+                    models3d.forEach(function(mdl) {
+                        mdl.visible=false;
+                        if(mdl.name === message){
+                            model=mdl;
+                        }
+                    });
+
+                        models3d[idx].visible=true; 
+                }
+
+                clearInterval(timerId);
+                sbutton.value ='start AR';
+                sbutton.innerText ='start AR';       
+                SayIt(message);
+                setTimeout(SayIt(message ), 2000);
+               
+                let sent = selectedSentences[idx];
+                setTimeout(SayIt(sent ), 3000);
+
+                setTimeout(SayIt("Congratulations!  Now learn how to write the word "+message ), 5000);
+
+            }
+        }
+    }
+
+
+    function SayIt(message){
+        if (synth.speaking) {
+            console.error('speechSynthesis.speaking');
+           // return;
+        }
+
+        if (message !== '') {
+            var utterThis = new SpeechSynthesisUtterance(message);
+            utterThis.onend = function (event) {
+                console.log('SpeechSynthesisUtterance.onend');
+            }
+            utterThis.onerror = function (event) {
+                console.error('SpeechSynthesisUtterance.onerror');
+            }
+
+            console.log("Voices No = "+voices.length);
+            utterThis.voice = voices[1];///////????
+            utterThis.pitch = '0.5';
+            utterThis.rate = '1.0';
+            synth.speak(utterThis);
+            
+        //console.log("Uttered!");
+
+        }
+    }
+
+    function createImageC(Rd, G, B, dst){
+        let i = Rd.data.length, j = (i * 4) + 3;
+
+        while(i --){
+            dst.data[j -= 4] = 255;
+            dst.data[j - 1] = B.data[i];
+            dst.data[j - 2] = G.data[i];
+            dst.data[j - 3] = Rd.data[i];
+        }
+
+        return dst;
+    }
+    function createImage(src, dst){
+        let i = src.data.length, j = (i * 4) + 3;
+
+        while(i --){
+            dst.data[j -= 4] = 255;
+            dst.data[j - 1] = dst.data[j - 2] = dst.data[j - 3] = src.data[i];
+        }
+
+        return dst;
+    }
+    function VerifyText(text){
+        return vocab.includes(text);
+    }
+
+
+                       //                 <!-- Animation -->
+
+
+
+
+    function initARApp() {
+
+
+
+
+        console.log("Init App");
+        texture = new THREE.VideoTexture(video);
+        texture.minFilter = THREE.NearestFilter;
+        texture.magFilter = THREE.NearestFilter;
+        texture.generateMipmaps = false;
+        texture.type = THREE.UnsignedByteType;
+        texture.format =THREE.RGBAFormat;
+
+        animations = ["idle", "talk", "wave", "victory"];
+        //lesson = ["table lamp","watering can","lighter","racket","lantern","fan","bottle","bucket","pan", "clock", "chair", "hat", "orange", "table", "clap", "swim", "climb", "fly", "throw", "crawl", "jump", "run"];
+
+        //lesson = ["lighter","lantern","bottle","bucket","hat"  ];
+
+        document.getElementById("words").innerText =  " Words to learn:  "+lesson;
+
+        //console.log(lesson);
+
+
+        const container = document.createElement( 'div' );
+        document.body.appendChild( container );
+
+        camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 2000 );
+        camera.position.set( 0, 100, 400 );
+
+        scene = new THREE.Scene();
+
+        //Light
+       //scene.background = new THREE.Color( 0xffffff );
+        let hlight = new THREE.HemisphereLight( 0xffffff, 0x444444,1 );
+        hlight.position.set( 0, 200, 0 );
+        scene.add( hlight );
+
+        let dlight = new THREE.DirectionalLight( 0xffffff, 5 );
+        dlight.position.set( 0, 200, 100 );
+
+        scene.add( dlight );
+        const targetObject = new THREE.Object3D();
+        targetObject.position.set(150,50,80);
+        scene.add(targetObject);
+        dlight.target = targetObject;
+
+        const alight = new THREE.AmbientLight( 0x909090 ); // soft white light
+        scene.add( alight );
+
+
+        // ground
+        const mesh = new THREE.Mesh( new THREE.PlaneGeometry( 1, 1 ), new THREE.MeshPhongMaterial( { color: 0x999999, depthWrite: false } ) );
+        mesh.rotation.x = - Math.PI / 2;
+        mesh.receiveShadow = true;
+        scene.add( mesh );
+        mesh.position.set(120,50,50);
+
+
+        const grid = new THREE.GridHelper( 100, 20, 0x000000, 0x000000 );
+        grid.material.opacity = 0.2;
+        grid.material.transparent = true;
+        scene.add( grid );
+        grid.position.set(220,50,50);
+
+        orthoCam = new THREE.OrthographicCamera(-0.5, 0.5, 0.5, -0.5, -10000, 10000);
+        // orthoCam.position.set(0, 0, 0);
+        orthoScene = new THREE.Scene();
+        orthoScene.background = new THREE.Color( 0xffffff );
+
+        var videoMaterial = new THREE.MeshBasicMaterial({
+            map: texture,
+            });
+        var videoGeometry = new THREE.PlaneGeometry(1, 1);
+        var videoMesh = new THREE.Mesh(videoGeometry, videoMaterial);
+        videoMesh.position.set(0, 0, 0);
+        orthoScene.add(videoMesh);
+
+        // models
+
+        loader = new FBXLoader();
+
+        //loadLesson(loader);
+
+        loader.load( '../idle.fbx', function ( object ) {
+
+            if(mixer === undefined)  mixer = new THREE.AnimationMixer( object );
+            scene.add( object );
+            object.position.set(220,50,50);
+            object.rotation.y=-0.7;
+
+            loadNextAnim(loader);
+            
+        } );
+
+
+        renderer = new THREE.WebGLRenderer( { alpha: true, antialias: true } );
+        renderer.setPixelRatio( window.devicePixelRatio );
+        renderer.setSize( window.innerWidth-100, window.innerHeight-100 ); 
+        renderer.autoClear = false;
+
+        container.appendChild( renderer.domElement );
+     
+        controls = new OrbitControls( camera, renderer.domElement );
+        controls.target.set( 0, 150, 0 );
+        controls.update();
+        window.addEventListener( 'resize', function(){ resize();}, false );
+
+
+
+
+        // Create an audio listener and add it to the camera
+        const listener = new THREE.AudioListener();
+        camera.add(listener);
+
+        // Create an audio source and load a sound
+        successSound = new THREE.Audio(listener);
+        const aloader = new THREE.AudioLoader();
+        aloader.load('sounds/success.mp3', function(buffer) {
+        // Set the buffer and loop properties of the sound
+        successSound.setBuffer(buffer);
+        successSound.setLoop(false);
+        successSound.setVolume(1);
+        });
+         croppedImage = document.createElement("img");
+        document.body.appendChild(croppedImage);
+    }//init()
+
+
+    let odx=0;
+    function loadLesson(loader){
+
+        // This recursive helper function loads one item at a time.
+        function loadItemSequentially(index) {
+            // Base case: All items for the lesson are loaded.
+            if (index >= lesson.length) {
+                console.log("All lesson items loaded successfully in order.");
+                
+                // Finalization logic that should run only after all assets are loaded.
+                //console.log(actions);
+                //console.log(models3d);
+                animate();     
+                playWaveAnimation();
+        
+                //  SayIt("welcomt to augmented reality learning platform. Let's Begin! Scan A word and press the Start button.");
+            
+                if (mixer) {
+                    mixer.addEventListener('finished', NextAnim);
+                }
+                return;
+            }
+
+            const obj = lesson[index];
+            console.log(`Loading item ${index + 1}/${lesson.length}: ${obj}`);
+
+            loader.load(`../${obj}.fbx`, 
+                // onLoad callback: executed when loading is complete.
+                function ( object ) {
+                    if(mixer === undefined) mixer = new THREE.AnimationMixer( object );
+                    
+                    // Check if the loaded object is an animation or a static model.
+                    if (object.animations.length > 0) {
+                        action = mixer.clipAction(object.animations[0]);
+                        action._clip.name = obj;
+                        actions.push(action);
+                        Lanims.push(obj);
+                        console.log(obj + " (animation)");
+                    } else {
+                        scene.add( object );
+                        object.traverse(function (child) {
+                            if (child.isMesh) {
+                                if (child.material) {
+                                    child.material.transparent = false;
+                                }
+                            }
+                        });
+
+                        object.scale.set(4, 4, 4);
+                        object.position.set(-100,150,5);
+                        object.name = obj;
+                        models3d.push(object);
+                        object.visible = false;
+                        console.log(obj + " (model)");
+                    }
+                    
+                    // After successfully loading and processing, load the next item in the sequence.
+                    loadItemSequentially(index + 1);
+                },
+                // onProgress callback (optional)
+                undefined,
+                // onError callback
+                function (error) {
+                    console.error(`Failed to load '${obj}'. Skipping. Error:`, error);
+                    // Continue to the next item even if one fails to load.
+                    loadItemSequentially(index + 1);
+                }
+            );
+        }
+
+        // Start the sequential loading process from the first item (index 0).
+        loadItemSequentially(0);
+    }
+
+
+
+    let animIdx=0;
+    function  loadNextAnim(loader){
+        const anim = animations[animIdx];
+        animIdx++;
+        loader.load( `../${anim}.fbx`, function ( object ) {
+
+            action = mixer.clipAction(object.animations[0]);
+            action._clip.name = animations[animIdx-1];
+            actions.push(action);
+            //console.log('clips No: ' +actions.length);
+            //console.log(action._clip.name);
+
+            if(animIdx<animations.length) {
+                loadNextAnim(loader);
+            }
+            else{
+                loadLesson(loader);
+            }
+        });
+    }
+
+
+
+    function NextAnim(e){       
+         playIdleAnimation();
+           
+    }
+
+
+
+    var clipName;
+    function  playAnimationByName(clip, n){
+        mixer.stopAllAction();
+
+        let idx =lesson.indexOf(clip);
+
+        let NoM = models3d.length;
+        const action = actions[idx+4-NoM];
+        clipName=action._clip.name;
+        console.log("clip name:  "+clipName); 
+        action.setLoop(THREE.LoopRepeat , n);
+        action.weight = 1;
+        action.fadeIn(0.8);       
+        action.play();     
+    }
+    function  playAnimation(index){
+        mixer.stopAllAction();
+        const action = actions[index];
+        const clipName=action._clip.name;
+        console.log("clip name:  "+clipName);
+        action.setLoop(THREE.LoopRepeat , 3);
+        action.weight = 1;
+        action.fadeIn(.8);
+        action.play();
+    }
+
+    function  playIdleAnimation(){
+        mixer.stopAllAction();
+        const action = actions[0];
+        //console.log(action);
+        action.weight = 1;
+        action.fadeIn(0);
+        //action.clampWhenFinished = true;
+        action.play();
+    }
+
+    function  playWaveAnimation(){
+        mixer.stopAllAction();
+        const action = actions[2];
+        action.weight = 1;
+        action.fadeIn(0.5);
+        action.setLoop(THREE.LoopRepeat , 5);
+        //action.clampWhenFinished = true;
+        action.play();
+    }
+
+    function  playTalkAnimation(){
+        mixer.stopAllAction();
+        const action = actions[1];
+        action.setLoop(THREE.LoopRepeat , 1);
+        action.weight = 1;
+        action.fadeIn(0);
+        action.play();
+        //action.clampWhenFinished = true;
+    }
+    function  playVictoryAnimation(){
+        mixer.stopAllAction();
+        const action = actions[3];
+        action.setLoop(THREE.LoopRepeat , 1);
+        action.weight = 1;
+        action.fadeIn(.8);
+        action.play();
+    }
+
+    function  resize() {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize( window.innerWidth-100, window.innerHeight-100 );
+    }
+
+
+    function animate() {
+
+        requestAnimationFrame( function(){animate(); } );
+
+        if (video.readyState === video.HAVE_ENOUGH_DATA) {
+
+            texture.needsUpdate =true;
+            renderer.clear();
+            renderer.render(orthoScene, orthoCam);
+            
+            renderer.clearDepth();
+        
+           renderer.render(scene, camera);
+        }
+        const delta = clock.getDelta();
+
+        if ( mixer ) mixer.update( delta );
+
+        if(rotatModel){
+            if(model){
+
+                model.rotation.y +=0.01;
+
+            }
+        }
+    }
+
+
+//*******************    Audio   *********************//
+
+
+   // const audioClips = [];
+
+</script> 
+
+</html>
