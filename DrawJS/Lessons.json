@@ -1,8 +1,7 @@
 {
-    "furniture":["table", "chair", "tent", "fan"],
-    "objects":["lighter","lantern","bottle","bucket","pan", "clock", "hat"  ],
-    "verbs":["climb", "fly", "throw", "crawl", "clap"],
-    "animals":["cow", "sheep", "horse", "llama", "zebra"],
-    "fruites" : ["orange"],
+    "select lesson":[],
+    "objects":["lighter","lantern","bottle","bucket","hat"],
+    "furniture":["table", "chair",  "fan", "clock"],
+    "verbs":["clap", "climb", "fly", "throw", "crawl" ],
     "sport" :["swim", "racket", "jump", "run"]
 }
