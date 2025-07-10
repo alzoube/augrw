@@ -203,7 +203,7 @@
         </label>      
         <input type="range" id="textsize" min="5" max="20" value="10" step="5">
         <button  type="button" id="clearButton" value="Clear"> Clear</button>
-        <button  type="button" id="start_button"  value="Start Game">New Word </button>
+        <button  type="button" id="start_button"  value="Start Game">Guess the Word </button>
         <button  type="button" id="spell_button"  value="Check Spelling"> Check Spelling</button>
 
 
@@ -364,6 +364,7 @@ window.onload = function(){
                 points = [];
                 canvasImg = getCanvasImg(canvas);
                 window.hideAllObjects();
+                document.getElementById("start_button").disabled = false;
             }
             window.clearCanv = clearCanv;
 
@@ -530,7 +531,7 @@ window.onload = function(){
     var hideshow = true;
     var loader, text2;
   
-
+    var attempt = 0; // for STT attempts
   
 ///  toolvar
 
@@ -642,6 +643,8 @@ window.onload = function(){
 
     window.clearCanv();
 
+    gamebutton.disabled = true;
+
         models3d.forEach(function(mdl) {
                     mdl.visible=false;
 
@@ -659,10 +662,7 @@ window.onload = function(){
                 playAnimationByName(word, 3);
             }
             else{//object
-
-
-                
-                
+                            
                 models3d.forEach(function(mdl) {
                     mdl.visible=false;
                     if(mdl.name === word){
@@ -674,17 +674,24 @@ window.onload = function(){
                 playAnimationByName("point", 1);
             }
     };
+
+
+
+
+
     document.addEventListener("startGameEvent", startGameListener);
     var startGameEvent = new CustomEvent("startGameEvent" );
     var gamebutton = document.getElementById('start_button');
 
     gamebutton.onclick =function (){
 
-    SayIt("can you guess the word ?");
-    document.dispatchEvent(startGameEvent);  
-    //console.log("start game dispached");
-        //recognition.stop();
-        //setTimeout(recognition.start(), 1000); // Answer now (STT)
+        attempt = 0; // reset attempts
+
+        SayIt("can you guess the word ?");
+        document.dispatchEvent(startGameEvent);  
+        //console.log("start game dispached");
+            //recognition.stop();
+            //setTimeout(recognition.start(), 1000); // Answer now (STT)
     }
            
 
@@ -929,12 +936,19 @@ init();
             moveIt=true;          
 
         }
-        else{
+        else if(attempt<3){
 
             playTalkAnimation();
             SayIt("please say  it again");
+            attempt++;
 
-        }  
+        } 
+        else{
+
+            speek(" Now try to write it !  ");
+            //document.dispatchEvent(correctAnswer1); 
+            moveIt=true;           
+        } 
     }
 
 
@@ -960,6 +974,7 @@ init();
             //clearInterval(timerOCR);
             document.dispatchEvent(correctAnswer2);
 
+            gamebutton.disabled = false;
 
         } else{
 
